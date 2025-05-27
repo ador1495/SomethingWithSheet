@@ -1,0 +1,48 @@
+{
+    "Grid": "direct",
+    "txt": [
+        "ok",
+        "To Save The Sheet",
+        "CTRL + X",
+        "It loaded automatically",
+        "Flip cell with Numpad5"
+    ],
+    "line": [
+        [
+            0,
+            0
+        ],
+        [
+            5,
+            0
+        ],
+        [
+            6,
+            0
+        ],
+        [
+            7,
+            0
+        ],
+        [
+            8,
+            1
+        ]
+    ],
+    "row": [
+        "Simple",
+        "Normal",
+        "Hard",
+        "Extrme",
+        "Perfect"
+    ],
+    "col": [
+        "1",
+        "12",
+        "123",
+        "1234",
+        "12345",
+        "123456",
+        "1234567"
+    ]
+}

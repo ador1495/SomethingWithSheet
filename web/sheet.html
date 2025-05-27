@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script type="text/javascript" src="/eel.js"></script>
+    <title>Word Collector</title>
+	<style>
+		html {
+			padding: 0px;
+			margin: 0px;
+			height: 100%;
+			width: 100%;
+		}
+		body {
+			padding: 0px;
+			margin: 0px;
+			background-color: #E1DABD;
+		}
+		#table {
+			background-color: #FEF5D0;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			border: 4px solid #A89A65;
+			position: relative;
+			left: 0px;
+			top: 0px;
+		}
+		.cell {
+			font-family: 'Arial', 'Verdana', 'Roboto', sans-serif;
+			font-size: 18px;
+			line-height: 1.6;
+			letter-spacing: 0.03em;
+			color: #333;
+			border: 4px solid #A89A65;
+			border-collapse: collapse;
+			text-align: center;
+			overflow: hidden;
+			display: -webkit-box;
+			-webkit-line-clamp: 3;         /* Set to max number of lines you want */
+			-webkit-box-orient: vertical;
+			white-space: normal;
+			text-overflow: ellipsis;
+		}
+
+		[selected] {
+			border: 4px solid orange;
+		}
+		[carry] {
+			border: 4px solid gray;
+		}
+		[flipped="true"] {
+			background-color: #EDD165;
+		}
+		#main {
+			position; relative;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			margin: 16px;
+		}
+		#no {
+			background-color: #F5ECCB;
+			height: 24px;
+			width: 24px;
+		}
+		#row {
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			background-color: #F5ECCB;
+			height: 24px;
+			font-size: 16px;
+			text-align: center;
+		}
+		#column {
+			background-color: #F5ECCB;
+			width: 24px;
+			font-size: 16px;
+			text-align: center;
+		}
+		.ce {
+			writing-mode: vertical-rl;
+			text-orientation: upright;
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+		.re {
+			overflow: hidden;
+			white-space: nowrap;
+			text-overflow: ellipsis;
+		}
+		.box-image {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1;
+			opacity: 20%;
+			pointer-events: none;
+		}
+	</style>
+</head>
+<body>
+	<div id="main">
+		<img src="Box.png" alt="Opened Transparent Box" class="box-image">
+		<div id="no"></div>
+		<div id="row"></div>
+		<div id="column"></div>
+		<div id="table"></div>
+	</div>
+	<script src="WordTable.js">
+</script>
+</body>
+</html>

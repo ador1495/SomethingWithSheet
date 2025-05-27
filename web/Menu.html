@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script type="text/javascript" src="/eel.js"></script>
+    <title>Word Collector</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2vw;
+			margin-top: 0.5vh;
+            padding: 2vw;
+			padding-top: 2vh;
+            background-color: #f4f4f4;
+            max-width: 95vw;
+        }
+        h1, h2 {
+            font-size: 3vw; /* More balanced text size */
+            color: #333;
+			margin-bottom: 2vh;
+        }
+        input {
+            display: block;
+            margin: 1vw 0;
+            padding: 0.8vw;
+            width: 75vw; /* Slightly smaller input box */
+            font-size: 1.8vw;
+        }
+        button {
+            padding: 1vw 2vw;
+            margin: 0.5vw;
+            font-size: 1.6vw;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            cursor: pointer;
+            border-radius: 0.5vw;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .template {
+            background: #fff;
+            padding: 1.5vw;
+            border-radius: 0.8vw;
+            box-shadow: 0 0 0.8vw rgba(0, 0, 0, 0.1);
+        }
+        p {
+            margin: 0.8vw 0;
+            font-size: 1.5vw;
+        }
+
+        /* Fine-tuned media query for smaller screens */
+        @media (max-width: 600px) {
+            body {
+                padding: 1.5vw;
+                margin: 1.5vw;
+            }
+            h1, h2 {
+                font-size: 4vw;
+            }
+            button, input {
+                font-size: 2.5vw;
+                padding: 1.5vw;
+            }
+        }
+		.template {
+			position: relative; /* Makes child positioning stable */
+			overflow: hidden; /* Prevent extra spacing issues */
+			width: 85vw;
+		}
+
+		.box-image {
+			width: 24vw; 
+			position: absolute; /* Ensures it's inside the box */
+			right: 0vw; /* Adjust as needed */
+			top: 60%; /* Centers vertically */
+			transform: translateY(-50%); /* Fixes alignment */
+		}
+		#create {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%); /* Centers it */
+			z-index: 1;
+			width: 80vw;
+			background: white;
+			border: 1px solid black;
+			padding: 10px;
+			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Adds a subtle shadow */
+			display: none;
+		}
+    </style>
+</head>
+<body>
+    <h1>DATA BOX</h1>
+    <input placeholder="Enter File Name or Path to open a box">
+    <button>Import From File Explorer</button>
+    <button id="create-btn">Create New Box</button>
+    <button>Open The Box</button>
+    <button>Edit Box Size</button>
+    <button>Key Mapping</button>
+
+    <h2>Feature</h2>
+    <div class="template">
+		<p><b>Sheet</b></p>
+		<p>1. Cell can flip like Flash Card and Cell can Load image, html element and Shoutcut/URL</p>
+		<p>2. Limited Row and Column with custom label to make Routin, Report and Chart Easier</p>
+		<p>3. Move to sheet with PgUp/PgDn and Mark cell with color and Move to marked Cell</p>
+		<p><b>HTML Page Editor</b></p>
+		<p>1. Create Cell and set its innerHTML and css</p>
+		<p>2. Shoutcut Key for setting lines of code instantly</p>
+
+		<img src="Box.png" alt="Opened Transparent Box" class="box-image">
+	</div>
+	<div id="create">
+		<label>Box Name:</label><input>
+		<div>
+			<label>Row:</label><input id="row" value="5">
+			<label>Column</label><input id="clm" value="7">
+			<label>Layer</label><input id="lyr">
+		</div>
+		<h4>Cell Setting:</h4>
+		<label>Binary Limits</label><input>
+		<button>Image</button>
+		<button>Color</button>
+		<button>Drag</button>
+		<button>Flip</button>
+		<button>Grid Labeling</button>
+		<button id="confirm" onclick="goToSheet()">Confirm The Box Settings</button>
+	</div>
+	<script>
+        function goToSheet() {
+            let row = document.getElementById("row").value;
+            let column = document.getElementById("clm").value;
+            window.location.href = `sheet.html?row=${row}&column=${column}`;
+        }
+		document.getElementById("create-btn").addEventListener("click", () => {
+			document.getElementById("create").style.display = "block";
+		});
+    </script>
+</body>
+</html>
