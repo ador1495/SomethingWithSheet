@@ -1,1 +1,1 @@
-A PowerFull and optimized Sheet WebApp. ok
+A PowerFull and optimized Sheet WebApp.
