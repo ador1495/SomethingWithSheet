@@ -2,10 +2,12 @@ let l = 0, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, is
 let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input');
 let rn = [], cn = [], i = 0, txt = [], line = [[]];
 
-let r = parseInt(getQueryParam("row")), c = parseInt(getQueryParam("column")); console.log(r,c)
+isNew = getQueryParam("isNew"); if (isNew == "false") {isNew = false} else {isNew = true};
+let r = parseInt(getQueryParam("row")), c = parseInt(getQueryParam("column")); 
 function getQueryParam(name) {	//when jump from Menu.html
+	const urlParams = new URLSearchParams(window.location.search); 
 	if (isNew){
-		const urlParams = new URLSearchParams(window.location.search); return urlParams.get(name);
+		return urlParams.get(name);
 	} else {
 		return 0;
 	}
@@ -14,10 +16,8 @@ function getQueryParam(name) {	//when jump from Menu.html
 function getTableData () {
 	if (isNew == false) {
 		eel.load_from_json()().then(data => {	txt = data.txt;	line = data.line; //txt[n] is value of cell[line[n][0]].flip[line[n][1]]
-			if ((r+c)==0) r = row.length, c = col.length;	//when direct open from startup
+			if ((r+c)==0) r = data.row.length, c = data.col.length;	//when direct open from startup
 			Table();
-			for (let C=0;C<c;C++){cn.push('')}	//Defining row and column for set value of row[n] without error
-			for (let R=0;R<r;R++){rn.push('')}
 			for (let L=0;L<r;L++) {
 				rn[L].innerHTML = data.row[L];
 			}
@@ -200,7 +200,7 @@ document.addEventListener('keydown', function OnKeydown(event) {
             cells[s[n]].innerHTML = cells[s[n]].flip[cells[s[n]].f];
         }
     }
-	if (event.ctrlKey && event.key == 'x'){let arr = [], pos = [], rown = [], coln = [];
+	if (event.ctrlKey && event.key == 'x'){let arr = [], pos = [], rown = [], coln = []; console.log('ok')
 		for (let p=0;p<cells.length;p++){			//save as file
 			for (let t=0;t<f;t++){
 				if (cells[p].flip[t] != ''){
