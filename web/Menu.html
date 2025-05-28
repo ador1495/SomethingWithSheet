@@ -93,10 +93,10 @@
 </head>
 <body>
     <h1>DATA BOX</h1>
-    <input placeholder="Enter File Name or Path to open a box">
+    <input placeholder="Enter File Name or Path to open a box" id="filename">
     <button>Import From File Explorer</button>
     <button id="create-btn">Create New Box</button>
-    <button>Open The Box</button>
+    <button id="open-btn">Open The Box</button>
     <button>Edit Box Size</button>
     <button>Key Mapping</button>
 
@@ -129,13 +129,18 @@
 		<button id="confirm" onclick="goToSheet()">Confirm The Box Settings</button>
 	</div>
 	<script>
-        function goToSheet() {
-            let row = document.getElementById("row").value;
-            let column = document.getElementById("clm").value;
+        function goToSheet() {let row = 0; column = 0;
+            row = document.getElementById("row").value;
+            column = document.getElementById("clm").value;
             window.location.href = `sheet.html?row=${row}&column=${column}`;
         }
 		document.getElementById("create-btn").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
+		});
+		document.getElementById("open-btn").addEventListener("click", () => {
+			let Input = document.getElementById("filename");
+			eel.FileName = Input.value;
+			goToSheet();
 		});
     </script>
 </body>

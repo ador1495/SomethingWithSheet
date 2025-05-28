@@ -2,6 +2,7 @@ import eel
 import os, json
 os.chdir(os.path.dirname(__file__))
 eel.init("web")
+FileName = 'data'
 
 @eel.expose
 def save_to_json(data):
@@ -23,7 +24,7 @@ def save_to_json(data):
 @eel.expose
 def load_from_json():
     """Load data from JSON and send it to JavaScript."""
-    file_path = "Data/data.json"
+    file_path = f"Data/{FileName}.json"
 
     if not os.path.exists(file_path):  # Check if the file exists
         print("File not found!")
