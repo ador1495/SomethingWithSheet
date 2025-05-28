@@ -113,34 +113,38 @@
 		<img src="Box.png" alt="Opened Transparent Box" class="box-image">
 	</div>
 	<div id="create">
-		<label>Box Name:</label><input>
+		<label>Box Name:</label><input id="newFileName">
 		<div>
 			<label>Row:</label><input id="row" value="5">
 			<label>Column</label><input id="clm" value="7">
-			<label>Layer</label><input id="lyr">
 		</div>
-		<h4>Cell Setting:</h4>
-		<label>Binary Limits</label><input>
-		<button>Image</button>
-		<button>Color</button>
-		<button>Drag</button>
-		<button>Flip</button>
-		<button>Grid Labeling</button>
+		<div>
+			<h4>Set Limits</h4>
+			<label>Layer (page limits):</label><input id="lyr">
+			<button>Keep external file download in the destory</button>
+		</div>
+		
 		<button id="confirm" onclick="goToSheet()">Confirm The Box Settings</button>
 	</div>
 	<script>
-        function goToSheet() {let row = 0; column = 0;
+        function goToSheet() {let row = 0; column = 0, name = 'UnNamed';
             row = document.getElementById("row").value;
             column = document.getElementById("clm").value;
-            window.location.href = `sheet.html?row=${row}&column=${column}`;
+			name = document.getElementById('newFileName').value;
+			eel.File_Name(name);
+            window.location.href = `sheet.html?row=${row}&column=${column}&isNew=${true}`;
         }
 		document.getElementById("create-btn").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
 		});
 		document.getElementById("open-btn").addEventListener("click", () => {
 			let Input = document.getElementById("filename");
-			eel.FileName = Input.value;
-			goToSheet();
+			if (Input.value != ''){
+				eel.File_Name(Input.value);
+				row = document.getElementById("row").value;
+				column = document.getElementById("clm").value;
+				window.location.href = `sheet.html?row=${row}&column=${column}&isNew=${false}`;
+			}
 		});
     </script>
 </body>
