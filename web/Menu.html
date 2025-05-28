@@ -131,8 +131,15 @@
             row = document.getElementById("row").value;
             column = document.getElementById("clm").value;
 			name = document.getElementById('newFileName').value;
-			eel.File_Name(name);
-            window.location.href = `sheet.html?row=${row}&column=${column}&isNew=${true}`;
+			eel.selectFolder(name);
+			let cf = {
+					row: parseInt(row),
+					col: parseInt(column),
+					rowValue: [],
+					colValue: []
+				}
+			eel.save_to_json(cf, 'config.json');
+            window.location.href = "sheet.html?isNew=true";
         }
 		document.getElementById("create-btn").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
@@ -140,10 +147,8 @@
 		document.getElementById("open-btn").addEventListener("click", () => {
 			let Input = document.getElementById("filename");
 			if (Input.value != ''){
-				eel.File_Name(Input.value);
-				row = document.getElementById("row").value;
-				column = document.getElementById("clm").value;
-				window.location.href = `sheet.html?row=${row}&column=${column}&isNew=${false}`;
+				eel.selectFolder(Input.value);
+				window.location.href = "sheet.html?isNew=false";
 			}
 		});
     </script>

@@ -1,9 +1,9 @@
-let l = 0, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, isNew = true, rc = 24;	//Variables
+let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, isNew = true, rc = 24;	//Variables
 let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input');
-let rn = [], cn = [], i = 0, txt = [], line = [[]];
+let rn = [], cn = [], i = 0, txt = [], line = [[]], rnv = [], cnv = [];
 
 isNew = getQueryParam("isNew"); if (isNew == "false") {isNew = false} else {isNew = true};
-let r = parseInt(getQueryParam("row")), c = parseInt(getQueryParam("column")); 
+let r = 0, c = 0;
 function getQueryParam(name) {	//when jump from Menu.html
 	const urlParams = new URLSearchParams(window.location.search); 
 	if (isNew){
@@ -13,17 +13,17 @@ function getQueryParam(name) {	//when jump from Menu.html
 	}
 }
 
+function getLabelData () {console.log(isNew)
+	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue;
+		if ((r+c)==0) r = cf.row, c = cf.col;	console.log(r, c);	getTableData ();
+	}).catch(error => {
+		console.error("Error loading data:", error);
+	});
+}
 function getTableData () {console.log(isNew)
 	if (isNew == false) {
-		eel.load_from_json()().then(data => {	txt = data.txt;	line = data.line; //txt[n] is value of cell[line[n][0]].flip[line[n][1]]
-			if ((r+c)==0) r = data.row.length, c = data.col.length;	//when direct open from startup
+		eel.load_from_json(`${l}.json`)().then(data => {	txt = data.txt;	line = data.line; //txt[n] is value of cell[line[n][0]].flip[line[n][1]]
 			Table();
-			for (let L=0;L<r;L++) {
-				rn[L].innerHTML = data.row[L];
-			}
-			for (let L=0;L<c;L++) {
-				cn[L].innerHTML = data.col[L];
-			}
 		}).catch(error => {
 			console.error("Error loading data:", error);
 		});
@@ -40,15 +40,20 @@ function Table() {
 	let table = document.getElementById('table');
 	table.style.height = `${wheight-rc-6}px`;
 	table.style.width = `${wwidth-rc-8}px`;
-	for (let C=0;C<c;C++){
+	for (let C = 0; C < c; C++) {
 		let cl = document.createElement('div');
 		cl.className = 'ce';
-		cl.style.height = `${(wheight - 8 - rc) / c }px`;
+		cl.style.height = `${(wheight - 8 - rc) / c}px`;
 		cl.style.width = `${rc}px`;
+		let span = document.createElement('span');
+		span.className = 'rotated-text';
+		span.textContent = `Col ${C + 1}`;
+		cl.appendChild(span);
 		document.getElementById('column').appendChild(cl);
 	}
 	document.getElementById('column').style.height = `${wheight - 24}px`;
-	cn = Container.querySelectorAll('.ce');
+	cn = Container.querySelectorAll('.rotated-text');
+
 	for (let R=0;R<r;R++){
 		let rl = document.createElement('div');
 		rl.className = 're';
@@ -58,6 +63,12 @@ function Table() {
 	}
 	document.getElementById('row').style.width = `${wwidth - 24}px`;
 	rn = Container.querySelectorAll('.re');
+	for (let L=0;L<r;L++) { //it should work at top but async function didn't allow to define rn. As a result, Label will refresh with table what is extra waste of proccessing
+		rn[L].innerHTML = rnv[L];
+	}
+	for (let L=0;L<c;L++) {
+		cn[L].innerHTML = cnv[L];
+	}
 	
 	for (let n=0;n<c*r;n++){
 		let cell = document.createElement('div');
@@ -96,7 +107,8 @@ function Table() {
 		cells = Container.querySelectorAll('.cell');
 	}
 }
-getTableData();		//startup Table
+getLabelData();		//startup Table
+
 window.addEventListener('resize', function WindowOnResize() {
     const wheight = document.documentElement.clientHeight-32;
 	const wwidth = document.documentElement.clientWidth-32;
@@ -218,11 +230,16 @@ document.addEventListener('keydown', function OnKeydown(event) {
 		let data = {
 			txt: arr,
 			line: pos,
-			row: rown,
-			col: coln
+		}
+		let cf = {
+			row: r,
+			col: c,
+			rowValue: rown,
+			colValue: coln
 		}
 		console.log("Data to save:", data);
-		eel.save_to_json(data);
+		eel.save_to_json(data, `${l}.json`);
+		eel.save_to_json(cf, 'config.json');
 	}
 });
 document.addEventListener('keyup', function OnKeyUp(event) {cr = false;

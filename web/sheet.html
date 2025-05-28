@@ -80,11 +80,19 @@
 			text-align: center;
 		}
 		.ce {
-			writing-mode: vertical-rl;
-			text-orientation: upright;
+			position: relative;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 			overflow: hidden;
 			white-space: nowrap;
 			text-overflow: ellipsis;
+		}
+		.rotated-text {
+			font-family: 'Segoe UI', 'Roboto', sans-serif;
+			display: inline-block;
+			transform: rotate(-90deg);
+			transform-origin: center;
 		}
 		.re {
 			overflow: hidden;
