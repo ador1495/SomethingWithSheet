@@ -1,6 +1,6 @@
 let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, isNew = true, rc = 24;	//Variables
-let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input');
-let rn = [], cn = [], i = 0, txt = [], line = [[]], rnv = [], cnv = [];
+let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main');
+let rn = [], cn = [], cnode = [], i = 0, txt = [], line = [[]], rnv = [], cnv = [];
 
 isNew = getQueryParam("isNew"); if (isNew == "false") {isNew = false} else {isNew = true};
 let r = 0, c = 0;
@@ -13,101 +13,105 @@ function getQueryParam(name) {	//when jump from Menu.html
 	}
 }
 
-function getLabelData () {console.log(isNew)
-	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue;
-		if ((r+c)==0) r = cf.row, c = cf.col;	console.log(r, c);	getTableData ();
+function getLabel () {
+	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue; if ((r+c)==0) r = cf.row, c = cf.col;
+	
+		const wheight = document.documentElement.clientHeight-32, wwidth = document.documentElement.clientWidth-32;
+		Container = document.getElementById('main');	Container.style.height = `${wheight}px`;	Container.style.width = `${wwidth}px`;
+		for (let C = 0; C < c; C++) {
+			let cl = document.createElement('div');
+			cl.className = 'ce';	cl.style.height = `${(wheight - 8 - rc) / c}px`;	cl.style.width = `${rc}px`;
+			let span = document.createElement('span');
+			span.className = 'rotated-text';
+			cl.appendChild(span);	document.getElementById('column').appendChild(cl);
+		}
+		document.getElementById('column').style.height = `${wheight - 24}px`;	cn = Container.querySelectorAll('.rotated-text');	cnode = Container.querySelectorAll('.ce');
+		for (let R=0;R<r;R++){
+			let rl = document.createElement('div');
+			rl.className = 're';	rl.style.height = `${rc}px`;	rl.style.width = `${(wwidth - 8 - rc) / r }px`;
+			document.getElementById('row').appendChild(rl);
+		}
+		document.getElementById('row').style.width = `${wwidth - 24}px`;	rn = Container.querySelectorAll('.re');
+		for (let L=0;L<r;L++) {	rn[L].innerHTML = rnv[L];	}	for (let L=0;L<c;L++) {	cn[L].innerHTML = cnv[L];	}
+		
+		getTableData ();
 	}).catch(error => {
 		console.error("Error loading data:", error);
 	});
 }
-function getTableData () {console.log(isNew)
+function getTableData () {
+	console.log(isNew);
 	if (isNew == false) {
-		eel.load_from_json(`${l}.json`)().then(data => {	txt = data.txt;	line = data.line; //txt[n] is value of cell[line[n][0]].flip[line[n][1]]
+		eel.load_from_json(`${l}.json`)().then(data => {
+			txt = data.txt;
+			line = data.line;
 			Table();
 		}).catch(error => {
 			console.error("Error loading data:", error);
 		});
 	} else {
+		txt = [];
+		line = [];
 		Table();
 	}
 }
-function Table() {
-	const wheight = document.documentElement.clientHeight-32;
-	const wwidth = document.documentElement.clientWidth-32;
-	let Container = document.getElementById('main');	//container of row, col and table. instead of document.querySelectorAll, Container.getElementById is optimal
-	Container.style.height = `${wheight}px`;
-	Container.style.width = `${wwidth}px`;
-	let table = document.getElementById('table');
-	table.style.height = `${wheight-rc-6}px`;
-	table.style.width = `${wwidth-rc-8}px`;
-	for (let C = 0; C < c; C++) {
-		let cl = document.createElement('div');
-		cl.className = 'ce';
-		cl.style.height = `${(wheight - 8 - rc) / c}px`;
-		cl.style.width = `${rc}px`;
-		let span = document.createElement('span');
-		span.className = 'rotated-text';
-		span.textContent = `Col ${C + 1}`;
-		cl.appendChild(span);
-		document.getElementById('column').appendChild(cl);
-	}
-	document.getElementById('column').style.height = `${wheight - 24}px`;
-	cn = Container.querySelectorAll('.rotated-text');
 
-	for (let R=0;R<r;R++){
-		let rl = document.createElement('div');
-		rl.className = 're';
-		rl.style.height = `${rc}px`;
-		rl.style.width = `${(wwidth - 8 - rc) / r }px`;
-		document.getElementById('row').appendChild(rl);
-	}
-	document.getElementById('row').style.width = `${wwidth - 24}px`;
-	rn = Container.querySelectorAll('.re');
-	for (let L=0;L<r;L++) { //it should work at top but async function didn't allow to define rn. As a result, Label will refresh with table what is extra waste of proccessing
-		rn[L].innerHTML = rnv[L];
-	}
-	for (let L=0;L<c;L++) {
-		cn[L].innerHTML = cnv[L];
-	}
-	
-	for (let n=0;n<c*r;n++){
+function Table() {
+	const wheight = document.documentElement.clientHeight - 32;
+	const wwidth = document.documentElement.clientWidth - 32;
+	let table = document.getElementById('table');
+	table.style.height = `${wheight - rc - 6}px`;
+	table.style.width = `${wwidth - rc - 8}px`;
+	if (typeof i === 'undefined') i = 0;
+
+	for (let n = 0; n < c * r; n++) {
 		let cell = document.createElement('div');
 		cell.className = 'cell';
-		cell.style.height = `${(wheight - 6 - rc) / c }px`;
-		cell.style.width = `${(wwidth - 8 - rc) / r }px`;
-		cell.addEventListener('click', function cellOnClick(event){ cr = false;
-			if (mode == 0){
-				if (event.ctrlKey) {	//select multiple cell
+		cell.style.height = `${(wheight - 6 - rc) / c}px`;
+		cell.style.width = `${(wwidth - 8 - rc) / r}px`;
+
+		cell.addEventListener('click', function cellOnClick(event) {
+			cr = false;
+			if (mode == 0) {
+				if (event.ctrlKey) {
 					cell.setAttribute('selected', 'true');
 					s.push(n);
-				} else {				//select single cell
-					for (let n=0;n<s.length;n++){
+				} else {
+					for (let n = 0; n < s.length; n++) {
 						table.querySelectorAll(".cell")[s[n]].removeAttribute('selected');
-					} s=[];
+					}
+					s = [];
 					cell.setAttribute('selected', 'true');
 					s.push(n);
 				}
 			}
-			
-		})
-		document.getElementById('table').appendChild(cell);
-		if (f>0 && !cell.flip) {	//defining cell.flip for set value of cell.flip[n] without facing null
+		});
+		table.appendChild(cell);
+		if (f > 0 && !cell.flip) {
 			cell.flip = [];
-			for (let I=0;I<f;I++) {
+			for (let I = 0; I < f; I++) {
 				cell.flip.push('');
-			} cell.f = 0;
+			}
+			cell.f = 0;
 		}
-		if (txt.length-1 >= i) {
-			if (line[i][0] == n) {	//wait to reach at correct line. correct line != '' or not valueless. changing value of valueless cell is waste of memory
-				if (line[i][1] == 0) {	cell.innerHTML = txt[i]	}	//instantly load the value if cell is not flip
-				if (f>0) {	cell.flip[line[i][1]] = txt[i] }	//Load value of the current cell with "txt" and "line"
+
+		// ✅ Safe access of data
+		if (txt && line && txt.length - 1 >= i && line[i]) {
+			if (line[i][0] == n) {
+				if (line[i][1] == 0) {
+					cell.innerHTML = txt[i];
+				}
+				if (f > 0) {
+					cell.flip[line[i][1]] = txt[i];
+				}
 				i++;
 			}
 		}
-		cells = Container.querySelectorAll('.cell');
 	}
+	cells = Container.querySelectorAll('.cell');
 }
-getLabelData();		//startup Table
+
+getLabel();		//startup Table
 
 window.addEventListener('resize', function WindowOnResize() {
     const wheight = document.documentElement.clientHeight-32;
@@ -119,8 +123,8 @@ window.addEventListener('resize', function WindowOnResize() {
 	table.style.height = `${wheight-rc-6}px`;
 	table.style.width = `${wwidth-rc-8}px`;
 	for (let C=0;C<c;C++){
-		cn[C].style.height = `${(wheight - 8 - rc) / c }px`;
-		cn[C].style.width = `${rc}px`;
+		cnode[C].style.height = `${(wheight - 8 - rc) / c }px`;
+		cnode[C].style.width = `${rc}px`;
 	}
 	document.getElementById('column').style.height = `${wheight - 24}px`;
 	for (let R=0;R<r;R++){
@@ -229,17 +233,20 @@ document.addEventListener('keydown', function OnKeydown(event) {
 		}
 		let data = {
 			txt: arr,
-			line: pos,
+			line: pos
 		}
-		let cf = {
-			row: r,
-			col: c,
-			rowValue: rown,
-			colValue: coln
-		}
+		// let cf = {
+			// row: r,
+			// col: c,
+			// rowValue: rown,
+			// colValue: coln
+		// }
 		console.log("Data to save:", data);
 		eel.save_to_json(data, `${l}.json`);
-		eel.save_to_json(cf, 'config.json');
+		// eel.save_to_json(cf, 'config.json');
+	}
+	if (event.key == "PgDn") {
+		console.log('ok')
 	}
 });
 document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
