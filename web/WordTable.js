@@ -13,7 +13,7 @@ function getQueryParam(name) {	//when jump from Menu.html
 	}
 }
 
-function getTableData () {
+function getTableData () {console.log(isNew)
 	if (isNew == false) {
 		eel.load_from_json()().then(data => {	txt = data.txt;	line = data.line; //txt[n] is value of cell[line[n][0]].flip[line[n][1]]
 			if ((r+c)==0) r = data.row.length, c = data.col.length;	//when direct open from startup
