@@ -1,8 +1,7 @@
-let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, isNew = true, rc = 24;	//Variables
-let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main');
+let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, rc = 24;	//Variables
+let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main'), PageNo = document.getElementById('no');
 let rn = [], cn = [], cnode = [], i = 0, txt = [], line = [[]], rnv = [], cnv = [];
 
-isNew = getQueryParam("isNew"); if (isNew == "false") {isNew = false} else {isNew = true};
 let r = 0, c = 0;
 function getQueryParam(name) {	//when jump from Menu.html
 	const urlParams = new URLSearchParams(window.location.search); 
@@ -40,20 +39,28 @@ function getLabel () {
 	});
 }
 function getTableData () {
-	console.log(isNew);
-	if (isNew == false) {
-		eel.load_from_json(`${l}.json`)().then(data => {
-			txt = data.txt;
-			line = data.line;
-			Table();
-		}).catch(error => {
-			console.error("Error loading data:", error);
-		});
-	} else {
-		txt = [];
-		line = [];
+	eel.load_from_json(`${l}.json`)().then(data => {
+		txt = data.txt;
+		line = data.line;
 		Table();
-	}
+	}).catch(error => {
+		console.error("Error loading data:", error);
+	});
+}
+function getTableDataOnly() {
+	cells.forEach(cell => {cell.innerHTML = '';});
+	eel.load_from_json(`${l}.json`)().then(data => {
+		txt = data.txt;
+		line = data.line;
+		for (let n = 0; n < txt.length; n++) {
+			if (line[n][1] == 0) {
+				cells[line[n][0]].innerHTML = txt[n];
+			}
+			cells[line[n][0]].flip[line[n][1]] = txt[i];
+		}
+	}).catch(error => {
+		console.error("Error loading data:", error);
+	});
 }
 
 function Table() {
@@ -101,10 +108,7 @@ function Table() {
 				if (line[i][1] == 0) {
 					cell.innerHTML = txt[i];
 				}
-				if (f > 0) {
-					cell.flip[line[i][1]] = txt[i];
-				}
-				i++;
+				cell.flip[line[i][1]] = txt[i];	i++;
 			}
 		}
 	}
@@ -245,10 +249,18 @@ document.addEventListener('keydown', function OnKeydown(event) {
 		eel.save_to_json(data, `${l}.json`);
 		// eel.save_to_json(cf, 'config.json');
 	}
-	if (event.key == "PgDn") {
-		console.log('ok')
+	if (event.key == "PageDown" && l < TotalLayer - 1) {	l++; getTableDataOnly();	PageNo.innerHTML = l	}
+	if (event.key == "PageUp" && l > 1) {					l--; getTableDataOnly();	PageNo.innerHTML = l	}
+	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++;
+		let data = {
+			txt: [],
+			line: []
+		}
+		eel.save_to_json(data, `${l}.json`); getTableDataOnly();
 	}
 });
+let TotalLayer = 0;	PageNo.innerHTML = l;
+eel.file_count()().then((count) => {TotalLayer = count})
 document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
 	if (event.key == 't'){
 		for (let n = 0; n < s.length; n++) {

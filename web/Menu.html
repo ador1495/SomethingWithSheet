@@ -92,7 +92,7 @@
     </style>
 </head>
 <body>
-    <h1>DATA KIT</h1>
+    <h1>DATA BOX</h1>
     <input placeholder="Enter File Name or Path to open a box" id="filename">
     <button>Import From File Explorer</button>
     <button id="create-btn">Create New Box</button>
@@ -144,7 +144,7 @@
 				}
 			eel.save_to_json(cf, 'config.json');
 			eel.save_to_json(data, `1.json`);
-            window.location.href = "sheet.html?isNew=true";
+            window.location.href = "sheet.html";
         }
 		document.getElementById("create-btn").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
@@ -153,7 +153,7 @@
 			let Input = document.getElementById("filename");
 			if (Input.value != ''){
 				eel.selectFolder(Input.value);
-				window.location.href = "sheet.html?isNew=false";
+				window.location.href = "sheet.html";
 			}
 		});
     </script>

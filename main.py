@@ -41,9 +41,13 @@ def selectFolder(value):
 def folder_exist(path):
     return os.path.exists(path) and os.path.isdir(path)
 
-@eel.expose
 def get_file_list(path):
     return os.listdir(path) if os.path.exists(path) else []
+
+@eel.expose
+def file_count():
+    file_path = f"{DataType}/{Folder}"
+    return len(get_file_list(file_path))
 
 pre_data = get_file_list("Data")
 print(len(pre_data))
@@ -52,6 +56,6 @@ if len(pre_data) > 0:
     Folder = pre_data[0];
     global FileName
     FileName = '1.json'
-    eel.start("sheet.html?isNew=false", mode="default")
+    eel.start("sheet.html", mode="default")
 else:
     eel.start("Menu.html", mode="default")
