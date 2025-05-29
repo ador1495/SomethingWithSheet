@@ -21,13 +21,15 @@ function getLabel () {
 			let cl = document.createElement('div');
 			cl.className = 'ce';	cl.style.height = `${(wheight - 8 - rc) / c}px`;	cl.style.width = `${rc}px`;
 			let span = document.createElement('span');
-			span.className = 'rotated-text';
+			span.className = 'rotated-text'; span.setAttribute('contenteditable', 'true');
+			span.addEventListener('blur', function() {		savecf();		});
 			cl.appendChild(span);	document.getElementById('column').appendChild(cl);
 		}
 		document.getElementById('column').style.height = `${wheight - 24}px`;	cn = Container.querySelectorAll('.rotated-text');	cnode = Container.querySelectorAll('.ce');
 		for (let R=0;R<r;R++){
-			let rl = document.createElement('div');
+			let rl = document.createElement('div'); rl.setAttribute('contenteditable', 'true');
 			rl.className = 're';	rl.style.height = `${rc}px`;	rl.style.width = `${(wwidth - 8 - rc) / r }px`;
+			rl.addEventListener('blur', function() {		savecf();		});
 			document.getElementById('row').appendChild(rl);
 		}
 		document.getElementById('row').style.width = `${wwidth - 24}px`;	rn = Container.querySelectorAll('.re');
@@ -102,7 +104,6 @@ function Table() {
 			}
 			cr = false;
 		});
-		table.appendChild(cell);
 		if (f > 0 && !cell.flip) {
 			cell.flip = [];
 			for (let I = 0; I < f; I++) {
@@ -110,6 +111,21 @@ function Table() {
 			}
 			cell.f = 0;
 		}
+		cell.addEventListener('dblclick', function(){
+			if (!cell.querySelector('textarea')){
+				let input = document.createElement('textarea');
+				input.value = cell.innerHTML; cell.innerHTML = '';
+				input.style.width = cell.offsetWidth - 16 + "px";
+				input.style.height = cell.offsetHeight - 16 + "px";
+				cell.appendChild(input); input.focus();
+				input.addEventListener('blur', function() {
+					cell.innerHTML = input.value;
+					cell.flip[cell.f] = cell.innerHTML;
+					input.remove(); save();
+				});
+			}
+		})
+		table.appendChild(cell);
 
 		// ✅ Safe access of data
 		if (txt && line && txt.length - 1 >= i && line[i]) {
@@ -193,25 +209,28 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 			}
 		}
 	}
-	if (event.key == 'e' && s.length > 0){ mode=1;	//edit cell
-		for (let n = 0; n < s.length; n++) {
-			if (!cells[s[n]].querySelector('input')){
-				let input = document.createElement('input');
-				cells[s[n]].appendChild(input); input.focus();
-				inputs = document.querySelectorAll('input');
-			}
-		}
-	}
-	if (event.key == 'Enter'){						//confirm the edit
-		if (mode == 1){ mode=0;
-			for (let n = 0; n < s.length; n++) {
-				cells[s[n]].innerHTML = inputs[n].value;
-				cells[s[n]].flip[cells[s[n]].f] = cells[s[n]].innerHTML;
-				inputs[n].remove();
-			}
-		}
-		save()
-	}
+	// if (event.key == 'e' && s.length > 0){ mode=1;	//edit cell
+		// for (let n = 0; n < s.length; n++) {
+			// if (!cells[s[n]].querySelector('textarea')){
+				// let input = document.createElement('textarea');
+				// input.value = cells[s[n]].innerHTML; cells[s[n]].innerHTML = '';
+				// input.style.width = cells[s[n]].offsetWidth - 25 + "px";
+				// input.style.height = cells[s[n]].offsetHeight - 25 + "px";
+				// cells[s[n]].appendChild(input); input.focus();
+				// inputs = document.querySelectorAll('textarea');
+			// }
+		// }
+	// }
+	// if (event.key == 'Enter'){						//confirm the edit
+		// if (mode == 1){ mode=0;
+			// for (let n = 0; n < s.length; n++) {
+				// cells[s[n]].innerHTML = inputs[n].value;
+				// cells[s[n]].flip[cells[s[n]].f] = cells[s[n]].innerHTML;
+				// inputs[n].remove();
+			// }
+		// }
+		// save()
+	// }
 	if (event.key == 't' && s.length > 0 && cr == false && mode == 0){ cr = true;	//transfar value cell to cell. BUGGY
 		for (let n = 0; n < s.length; n++) {
 			cells[s[n]].setAttribute('carry', 'true');
@@ -262,7 +281,7 @@ document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
 });
 
 function save() {
-	let arr = [], pos = [], rown = [], coln = []; console.log('ok')
+	let arr = [], pos = []; console.log('ok')
 		for (let p=0;p<cells.length;p++){			//save as file
 			for (let t=0;t<f;t++){
 				if (cells[p].flip[t] != ''){
@@ -271,22 +290,25 @@ function save() {
 				}
 			}
 		}
-		for (let L=0;L<r;L++) {
-			rown.push(rn[L].innerHTML)
-		}
-		for (let L=0;L<c;L++) {
-			coln.push(cn[L].innerHTML)
-		}
 		let data = {
 			txt: arr,
 			line: pos
 		}
-		// let cf = {
-			// row: r,
-			// col: c,
-			// rowValue: rown,
-			// colValue: coln
-		// }
 		console.log("Data to save:", data);
 		eel.save_to_json(data, `${l}.json`);
+}
+function savecf (){let rown = [], coln = [];
+	for (let L=0;L<r;L++) {
+		rown.push(rn[L].innerHTML)
+	}
+	for (let L=0;L<c;L++) {
+		coln.push(cn[L].innerHTML)
+	}
+	let cf = {
+			row: r,
+			col: c,
+			rowValue: rown,
+			colValue: coln
+		}
+	eel.save_to_json(cf, `config.json`);
 }
