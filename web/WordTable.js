@@ -78,7 +78,6 @@ function Table() {
 		cell.style.width = `${(wwidth - 8 - rc) / r}px`;
 
 		cell.addEventListener('click', function cellOnClick(event) {
-			cr = false;
 			if (mode == 0) {
 				if (event.ctrlKey) {
 					cell.setAttribute('selected', 'true');
@@ -92,6 +91,16 @@ function Table() {
 					s.push(n);
 				}
 			}
+			if (cr) {
+				for (let n = 0; n < s.length; n++) {
+					cells[sc[n]].removeAttribute('carry');
+					cells[sc[n]].innerHTML = cells[s[n]].innerHTML; console.log(cells[s[n]].flip, cells[sc[n]].flip);
+					let cflip = cells[s[n]].flip;
+					cells[s[n]].flip = cells[sc[n]].flip, cells[sc[n]].flip = cflip; console.log(cells[s[n]].flip, cells[sc[n]].flip)
+					cells[s[n]].innerHTML = scv[n];
+				} sc = []; scv = [];
+			}
+			cr = false;
 		});
 		table.appendChild(cell);
 		if (f > 0 && !cell.flip) {

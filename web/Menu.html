@@ -94,11 +94,11 @@
 <body>
     <h1>DATA BOX</h1>
     <input placeholder="Enter File Name or Path to open a box" id="filename">
-    <button>Import From File Explorer</button>
+    <button onclick="chooseAndExtract()">Import From File Explorer</button>
     <button id="create-btn">Create New Box</button>
     <button id="open-btn">Open The Box</button>
     <button>Edit Box Size</button>
-    <button>Key Mapping</button>
+    <button onclick="window.location.href = 'KeyMap.html'">Key Mapping</button>
 
     <h2>Feature</h2>
     <div class="template">
@@ -156,6 +156,48 @@
 				window.location.href = "sheet.html";
 			}
 		});
+		
+		
+		
+		
+		
+		
+	let currentZipPath = "";
+
+    async function chooseAndExtract() {
+    console.log("ext");
+    try {
+        currentZipPath = await eel.select_zip_file()();
+        console.log("ZIP Path:", currentZipPath);
+        if (!currentZipPath) {
+            alert("No ZIP file selected!");
+            return;
+        }
+        
+    } catch (error) {
+        console.error("Error:", error);
+        document.getElementById("status").innerText = "Extraction failed!";
+    }
+}
+
+
+    // Handle Ctrl + X
+    document.addEventListener('keydown', async function (e) {
+    if (e.ctrlKey && e.key === 'x') {
+        if (!currentZipPath) {
+            alert("You must extract a ZIP first!");
+            return;
+        }
+        try {
+            const result = await eel.save_and_cleanup_zip(currentZipPath)();
+            document.getElementById("status").innerText = result;
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("status").innerText = "Cleanup failed!";
+        }
+    }
+});
+
     </script>
 </body>
 </html>

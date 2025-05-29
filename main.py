@@ -1,5 +1,7 @@
 import eel
 import os, json
+import zipfile
+import shutil
 os.chdir(os.path.dirname(__file__))
 eel.init("web")
 global DataType
@@ -49,8 +51,78 @@ def file_count():
     file_path = f"{DataType}/{Folder}"
     return len(get_file_list(file_path))
 
+
+
+
+
+
+
+
+DATA_DIR = 'Data'
+SAVED_DIR = 'Saved Data'
+
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(SAVED_DIR, exist_ok=True)
+
+from tkinter import Tk, filedialog
+
+@eel.expose
+def select_zip_file():
+    root = Tk()
+    root.withdraw()
+    root.wm_attributes('-topmost', 1)  # Force dialog on top
+    file_path = filedialog.askopenfilename(filetypes=[("ZIP Files", "*.zip")])
+    root.destroy()
+    return file_path
+
+@eel.expose
+def extract_to_data(zip_path):
+    if not zip_path:  # Check for empty path
+        return "Error: No ZIP file selected"
+
+    try:
+        with zipfile.ZipFile(zip_path, 'r') as zipf:
+            zipf.extractall(DATA_DIR)
+        return "Extracted to 'Data' folder"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+@eel.expose
+def save_and_cleanup_zip(original_zip_path):
+    try:
+        if not original_zip_path:
+            return "Error: No ZIP file selected"
+
+        base_name = os.path.basename(original_zip_path)
+        save_path = os.path.join(SAVED_DIR, base_name)
+
+        with zipfile.ZipFile(save_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            for root, dirs, files in os.walk(DATA_DIR):
+                for file in files:
+                    abs_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(abs_path, DATA_DIR)
+                    zipf.write(abs_path, rel_path)
+
+        # Clean up Data folder safely
+        if os.path.exists(DATA_DIR):
+            shutil.rmtree(DATA_DIR)
+        os.makedirs(DATA_DIR)
+
+        return f"Saved to '{save_path}' and cleaned 'Data'"
+    except Exception as e:
+        return f"Error: {str(e)}"
+
+
+
+
+
+
+
+
+
+
 pre_data = get_file_list("Data")
-print(len(pre_data))
 if len(pre_data) > 0:
     global Folder;
     Folder = pre_data[0];
