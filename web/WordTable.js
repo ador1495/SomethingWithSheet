@@ -152,7 +152,7 @@ window.addEventListener('resize', function WindowOnResize() {
 	}
 });
 
-document.addEventListener('keydown', function OnKeydown(event) {
+document.addEventListener('keydown', async function OnKeydown(event) {
 	if (event.key == 'ArrowRight' || event.key == 'ArrowLeft' || event.key == 'ArrowUp' || event.key == 'ArrowDown') {
 		let update = [], grantUpdate = true;
 		for (let n = 0; n < s.length; n++) {	//transfrom to cell of arrow direction
@@ -210,6 +210,7 @@ document.addEventListener('keydown', function OnKeydown(event) {
 				inputs[n].remove();
 			}
 		}
+		save()
 	}
 	if (event.key == 't' && s.length > 0 && cr == false && mode == 0){ cr = true;	//transfar value cell to cell. BUGGY
 		for (let n = 0; n < s.length; n++) {
@@ -229,7 +230,39 @@ document.addEventListener('keydown', function OnKeydown(event) {
             cells[s[n]].innerHTML = cells[s[n]].flip[cells[s[n]].f];
         }
     }
-	if (event.ctrlKey && event.key == 'x'){let arr = [], pos = [], rown = [], coln = []; console.log('ok')
+	if (event.key == "PageDown" && l < TotalLayer - 1) {	l++; getTableDataOnly();	PageNo.innerHTML = l	}
+	if (event.key == "PageUp" && l > 1) {					l--; getTableDataOnly();	PageNo.innerHTML = l	}
+	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++;
+		let data = {
+			txt: [],
+			line: []
+		}
+		eel.save_to_json(data, `${l}.json`); getTableDataOnly();
+	}
+	if (event.ctrlKey && event.key === 'x') {
+        try {
+            const result = await eel.save_and_cleanup_zip()();
+			window.location.href = "Menu.html";
+        } catch (error) {
+            console.error("Error:", error);
+            document.getElementById("status").innerText = "Cleanup failed!";
+        }
+    }
+});
+let TotalLayer = 0;	PageNo.innerHTML = l;
+eel.file_count()().then((count) => {TotalLayer = count})
+document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
+	if (event.key == 't'){
+		for (let n = 0; n < s.length; n++) {
+			cells[sc[n]].removeAttribute('carry');
+			cells[sc[n]].innerHTML = cells[s[n]].innerHTML
+			cells[s[n]].innerHTML = scv[n];
+		} sc = []; scv = [];
+	}
+});
+
+function save() {
+	let arr = [], pos = [], rown = [], coln = []; console.log('ok')
 		for (let p=0;p<cells.length;p++){			//save as file
 			for (let t=0;t<f;t++){
 				if (cells[p].flip[t] != ''){
@@ -256,27 +289,4 @@ document.addEventListener('keydown', function OnKeydown(event) {
 		// }
 		console.log("Data to save:", data);
 		eel.save_to_json(data, `${l}.json`);
-		// eel.save_to_json(cf, 'config.json');
-	}
-	if (event.key == "PageDown" && l < TotalLayer - 1) {	l++; getTableDataOnly();	PageNo.innerHTML = l	}
-	if (event.key == "PageUp" && l > 1) {					l--; getTableDataOnly();	PageNo.innerHTML = l	}
-	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++;
-		let data = {
-			txt: [],
-			line: []
-		}
-		eel.save_to_json(data, `${l}.json`); getTableDataOnly();
-	}
-});
-let TotalLayer = 0;	PageNo.innerHTML = l;
-eel.file_count()().then((count) => {TotalLayer = count})
-document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
-	if (event.key == 't'){
-		for (let n = 0; n < s.length; n++) {
-			cells[sc[n]].removeAttribute('carry');
-			cells[sc[n]].innerHTML = cells[s[n]].innerHTML
-			cells[s[n]].innerHTML = scv[n];
-		} sc = []; scv = [];
-	}
-});
-
+}

@@ -149,13 +149,18 @@
 		document.getElementById("create-btn").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
 		});
-		document.getElementById("open-btn").addEventListener("click", () => {
-			let Input = document.getElementById("filename");
-			if (Input.value != ''){
-				eel.selectFolder(Input.value);
-				window.location.href = "sheet.html";
-			}
-		});
+		document.getElementById("open-btn").addEventListener("click", async () => {
+    let Input = document.getElementById("filename");
+    if (Input.value !== '') {
+        const extractionResult = await eel.extract_to_data(`Saved Data/${Input.value}.zip`)();
+        if (extractionResult) {
+            window.location.href = "sheet.html";
+        } else {
+            document.getElementById("status").innerText = "Extraction failed!";
+        }
+    }
+});
+
 		
 		
 		
@@ -165,39 +170,19 @@
 	let currentZipPath = "";
 
     async function chooseAndExtract() {
-    console.log("ext");
-    try {
-        currentZipPath = await eel.select_zip_file()();
-        console.log("ZIP Path:", currentZipPath);
-        if (!currentZipPath) {
-            alert("No ZIP file selected!");
-            return;
-        }
-        
-    } catch (error) {
-        console.error("Error:", error);
-        document.getElementById("status").innerText = "Extraction failed!";
-    }
-}
-
-
-    // Handle Ctrl + X
-    document.addEventListener('keydown', async function (e) {
-    if (e.ctrlKey && e.key === 'x') {
-        if (!currentZipPath) {
-            alert("You must extract a ZIP first!");
-            return;
-        }
-        try {
-            const result = await eel.save_and_cleanup_zip(currentZipPath)();
-            document.getElementById("status").innerText = result;
-        } catch (error) {
-            console.error("Error:", error);
-            document.getElementById("status").innerText = "Cleanup failed!";
-        }
-    }
-});
-
+		try {
+			currentZipPath = await eel.select_zip_file()();
+			if (!currentZipPath) {
+				alert("No ZIP file selected!");
+				return;
+			}
+			const result = await eel.extract_to_data(currentZipPath)();
+			if (result) {window.location.href = "sheet.html";}
+		}catch (error) {
+			console.error("Error:", error);
+			document.getElementById("status").innerText = "Extraction failed!";
+		}
+	}
     </script>
 </body>
 </html>

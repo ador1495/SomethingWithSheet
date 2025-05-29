@@ -9,7 +9,9 @@ DataType = 'Data'
 
 @eel.expose
 def save_to_json(data, FileName):
-    file_path = f"{DataType}/{Folder}/{FileName}"
+    pre_data = get_file_list("Data")
+    Folder = pre_data[0]
+    file_path = f"Data/{Folder}/{FileName}"
 
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
@@ -18,7 +20,9 @@ def save_to_json(data, FileName):
 
 @eel.expose
 def load_from_json(FileName):
-    file_path = f"{DataType}/{Folder}/{FileName}"
+    pre_data = get_file_list("Data")
+    Folder = pre_data[0]
+    file_path = f"Data/{Folder}/{FileName}"
 
     if not os.path.exists(file_path):
         print("File not found! in ", file_path)
@@ -30,15 +34,15 @@ def load_from_json(FileName):
     print("Data loaded successfully:", file_path)  # Debugging log
     return data
 
-@eel.expose
-def selectFolder(value):
-    global DataType
-    DataType = 'Saved Data'
-    global Folder
-    Folder = value
-    if not folder_exist(f"Saved Data/{Folder}"):
-        os.makedirs(f"Saved Data/{Folder}", exist_ok=True)
-    print(f"Folder set to: {DataType}/{Folder}/")
+# @eel.expose
+# def selectFolder(value):
+    # global DataType
+    # DataType = 'Saved Data'
+    # global Folder
+    # Folder = value
+    # if not folder_exist(f"Saved Data/{Folder}"):
+        # os.makedirs(f"Saved Data/{Folder}", exist_ok=True)
+    # print(f"Folder set to: {DataType}/{Folder}/")
 
 def folder_exist(path):
     return os.path.exists(path) and os.path.isdir(path)
@@ -48,8 +52,11 @@ def get_file_list(path):
 
 @eel.expose
 def file_count():
-    file_path = f"{DataType}/{Folder}"
+    pre_data = get_file_list("Data")
+    Folder = pre_data[0]
+    file_path = f"Data/{Folder}"
     return len(get_file_list(file_path))
+
 
 
 
@@ -76,20 +83,26 @@ def select_zip_file():
     return file_path
 
 @eel.expose
+
 def extract_to_data(zip_path):
-    if not zip_path:  # Check for empty path
+    if not zip_path:
         return "Error: No ZIP file selected"
+    
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
 
     try:
         with zipfile.ZipFile(zip_path, 'r') as zipf:
             zipf.extractall(DATA_DIR)
-        return "Extracted to 'Data' folder"
+        return f"Extracted successfully to {DATA_DIR}"
     except Exception as e:
+        print(f"Extraction error: {e}")  # Log issue in console
         return f"Error: {str(e)}"
 
 
 @eel.expose
-def save_and_cleanup_zip(original_zip_path):
+def save_and_cleanup_zip():
+    original_zip_path = 'Data/ppp.zip'
     try:
         if not original_zip_path:
             return "Error: No ZIP file selected"
