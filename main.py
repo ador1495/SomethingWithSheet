@@ -34,15 +34,14 @@ def load_from_json(FileName):
     print("Data loaded successfully:", file_path)  # Debugging log
     return data
 
-# @eel.expose
-# def selectFolder(value):
-    # global DataType
-    # DataType = 'Saved Data'
-    # global Folder
-    # Folder = value
-    # if not folder_exist(f"Saved Data/{Folder}"):
-        # os.makedirs(f"Saved Data/{Folder}", exist_ok=True)
-    # print(f"Folder set to: {DataType}/{Folder}/")
+@eel.expose
+def selectFolder(Folder):
+    folder_path = f"Data/{Folder}"
+    
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path, exist_ok=True)
+    
+    print(f"Folder set to: {folder_path}/")
 
 def folder_exist(path):
     return os.path.exists(path) and os.path.isdir(path)
