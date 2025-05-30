@@ -16,7 +16,7 @@ function getLabel () {
 	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue; if ((r+c)==0) r = cf.row, c = cf.col;
 	
 	let wheight = document.documentElement.clientHeight-32, wwidth = document.documentElement.clientWidth-32, simp = 0;
-	ratio = cf.rat;//How to implement cell width ration here?
+	ratio = cf.rat;console.log(ratio)
 	if (ratio>0) {let z = ratio * (r/c) * (155.75/148);
 		if (wwidth/wheight> z){
 			wwidth = (wheight) * z;
@@ -149,7 +149,7 @@ function Table() {
 								insert = '<img src="" style="height: calc(100% - 40px)" />';
 								cursorPosOffset = 10; // inside src=""
 								break;
-							case "v": // Video
+							case "b": // Video
 								event.preventDefault();
 								insert = '<video src="" controls style="height: calc(100% - 40px)"></video>';
 								cursorPosOffset = 13;
@@ -168,6 +168,11 @@ function Table() {
 								event.preventDefault();
 								insert = '<iframe src="" style="width:100%; height:calc(100% - 40px);" frameborder="0" allowfullscreen></iframe>';
 								cursorPosOffset = 13;
+								break;
+							case "y": // youtube
+								event.preventDefault();
+								insert = '<iframe src="https://youtube.com/embed/" style="width:100%; height:calc(100% - 40px);" frameborder="0" allowfullscreen></iframe>';
+								cursorPosOffset = 40;
 								break;
 						}
 					}
@@ -374,6 +379,7 @@ function savecf (){let rown = [], coln = [];
 	let cf = {
 			row: r,
 			col: c,
+			rat: ratio,
 			rowValue: rown,
 			colValue: coln
 		}
