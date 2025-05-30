@@ -97,6 +97,30 @@ function Table() {
 		cell.style.width = `${(wwidth - 8 - rc) / r}px`;
 
 		cell.addEventListener('click', function cellOnClick(event) {
+			navigator.clipboard.readText()
+				.then(text => {
+				console.log("Clipboard content:", text);
+
+				let insert = "";
+				const ytMatch = text.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([\w\-]+)/);
+				if (ytMatch && ytMatch[1]) {
+					const videoId = ytMatch[1];
+					const embedUrl = `https://www.youtube.com/embed/${videoId}`;
+					insert = `<iframe src="${embedUrl}" style="width:100%; height:calc(100% - 40px);" frameborder="0" allowfullscreen></iframe>`;
+				} else {
+					insert = text;
+				}
+				cell.innerHTML += insert;
+				navigator.clipboard.writeText("").then(() => {
+					console.log("Clipboard cleared");
+				}).catch(err => {
+					console.error("Failed to clear clipboard", err);
+				});
+				})
+				.catch(err => {
+					console.error("Failed to read clipboard", err);
+				});
+
 			if (mode == 0) {
 				if (event.ctrlKey) {
 					cell.setAttribute('selected', 'true');
