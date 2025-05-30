@@ -172,7 +172,7 @@ function Table() {
 							case "y": // youtube
 								event.preventDefault();
 								insert = '<iframe src="https://youtube.com/embed/" style="width:100%; height:calc(100% - 40px);" frameborder="0" allowfullscreen></iframe>';
-								cursorPosOffset = 40;
+								cursorPosOffset = 39;
 								break;
 						}
 					}
