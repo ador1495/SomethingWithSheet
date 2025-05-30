@@ -11,28 +11,38 @@ function getQueryParam(name) {	//when jump from Menu.html
 		return 0;
 	}
 }
-
+let ratio = 0, simp = 0;
 function getLabel () {
 	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue; if ((r+c)==0) r = cf.row, c = cf.col;
 	
-		const wheight = document.documentElement.clientHeight-32, wwidth = document.documentElement.clientWidth-32;
+	let wheight = document.documentElement.clientHeight-32, wwidth = document.documentElement.clientWidth-32, simp = 0;
+	ratio = cf.rat;//How to implement cell width ration here?
+	if (ratio>0) {let z = ratio * (r/c) * (155.75/148);
+		if (wwidth/wheight> z){
+			wwidth = (wheight) * z;
+		} else {
+			wheight = (wwidth) / z;
+		}
+	}
+	
+		
 		Container = document.getElementById('main');	Container.style.height = `${wheight}px`;	Container.style.width = `${wwidth}px`;
 		for (let C = 0; C < c; C++) {
 			let cl = document.createElement('div');
-			cl.className = 'ce';	cl.style.height = `${(wheight - 8 - rc) / c}px`;	cl.style.width = `${rc}px`;
+			cl.className = 'ce';	cl.style.height = `${(wheight - rc) / c}px`;	cl.style.width = `${rc}px`;
 			let span = document.createElement('span');
 			span.className = 'rotated-text'; span.setAttribute('contenteditable', 'true');
 			span.addEventListener('blur', function() {		savecf();		});
 			cl.appendChild(span);	document.getElementById('column').appendChild(cl);
 		}
-		document.getElementById('column').style.height = `${wheight - 24}px`;	cn = Container.querySelectorAll('.rotated-text');	cnode = Container.querySelectorAll('.ce');
+		document.getElementById('column').style.height = `${wheight - rc}px`;	cn = Container.querySelectorAll('.rotated-text');	cnode = Container.querySelectorAll('.ce');
 		for (let R=0;R<r;R++){
 			let rl = document.createElement('div'); rl.setAttribute('contenteditable', 'true');
-			rl.className = 're';	rl.style.height = `${rc}px`;	rl.style.width = `${(wwidth - 8 - rc) / r }px`;
+			rl.className = 're';	rl.style.height = `${rc}px`;	rl.style.width = `${(wwidth - rc) / r }px`;
 			rl.addEventListener('blur', function() {		savecf();		});
 			document.getElementById('row').appendChild(rl);
 		}
-		document.getElementById('row').style.width = `${wwidth - 24}px`;	rn = Container.querySelectorAll('.re');
+		document.getElementById('row').style.width = `${wwidth - rc}px`;	rn = Container.querySelectorAll('.re');
 		for (let L=0;L<r;L++) {	rn[L].innerHTML = rnv[L];	}	for (let L=0;L<c;L++) {	cn[L].innerHTML = cnv[L];	}
 		
 		getTableData ();
@@ -66,8 +76,15 @@ function getTableDataOnly() {
 }
 
 function Table() {
-	const wheight = document.documentElement.clientHeight - 32;
-	const wwidth = document.documentElement.clientWidth - 32;
+	let wheight = document.documentElement.clientHeight-32;
+	let wwidth = document.documentElement.clientWidth-32;
+	if (ratio>0) {let z = ratio * (r/c) * (155.75/148);
+		if (wwidth/wheight> z){
+			wwidth = (wheight) * z;
+		} else {
+			wheight = (wwidth) / z;
+		}
+	}
 	let table = document.getElementById('table');
 	table.style.height = `${wheight - rc - 6}px`;
 	table.style.width = `${wwidth - rc - 8}px`;
@@ -186,8 +203,15 @@ function Table() {
 getLabel();		//startup Table
 
 window.addEventListener('resize', function WindowOnResize() {
-    const wheight = document.documentElement.clientHeight-32;
-	const wwidth = document.documentElement.clientWidth-32;
+    let wheight = document.documentElement.clientHeight-32;
+	let wwidth = document.documentElement.clientWidth-32;
+	if (ratio>0) {let z = ratio * (r/c) * (155.75/148);
+		if (wwidth/wheight> z){
+			wwidth = (wheight) * z;
+		} else {
+			wheight = (wwidth) / z;
+		}
+	}
 	let Container = document.getElementById('main');	//container of row, col and table
 	Container.style.height = `${wheight}px`;
 	Container.style.width = `${wwidth}px`;
@@ -195,15 +219,15 @@ window.addEventListener('resize', function WindowOnResize() {
 	table.style.height = `${wheight-rc-6}px`;
 	table.style.width = `${wwidth-rc-8}px`;
 	for (let C=0;C<c;C++){
-		cnode[C].style.height = `${(wheight - 8 - rc) / c }px`;
+		cnode[C].style.height = `${(wheight-rc) / c }px`;
 		cnode[C].style.width = `${rc}px`;
 	}
-	document.getElementById('column').style.height = `${wheight - 24}px`;
+	document.getElementById('column').style.height = `${wheight - rc}px`;
 	for (let R=0;R<r;R++){
 		rn[R].style.height = `${rc}px`;
-		rn[R].style.width = `${(wwidth - 8 - rc) / r }px`;
+		rn[R].style.width = `${(wwidth-rc) / r }px`;
 	}
-	document.getElementById('row').style.width = `${wwidth - 24}px`;
+	document.getElementById('row').style.width = `${wwidth - rc}px`;
 	
 	for (let n=0;n<c*r;n++){
 		cells[n].style.height = `${(wheight - 6 - rc) / c }px`;

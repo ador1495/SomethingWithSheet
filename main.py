@@ -77,6 +77,7 @@ def select_zip_file():
     root = Tk()
     root.withdraw()
     root.wm_attributes('-topmost', 1)  # Force dialog on top
+    initialdir = 'Saved Data'
     file_path = filedialog.askopenfilename(filetypes=[("ZIP Files", "*.zip")])
     root.destroy()
     return file_path
@@ -101,7 +102,9 @@ def extract_to_data(zip_path):
 
 @eel.expose
 def save_and_cleanup_zip():
-    original_zip_path = 'Data/ppp.zip'
+    pre_data = get_file_list("Data")
+    Folder = pre_data[0]
+    original_zip_path = f'Saved Data/{Folder}.zip'
     try:
         if not original_zip_path:
             return "Error: No ZIP file selected"

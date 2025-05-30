@@ -116,22 +116,27 @@
 	</div>
 	<div id="create">
 		<label>Box Name:</label><input id="newFileName">
+		<label>Wait for new Box Type HTML_Editor & Pixel_Editor. Currently you are using Cell_Editor</label>
+		<h3>Size:</h3>
 		<div>
-			<label>Row:</label><input id="row" value="5">
-			<label>Column</label><input id="clm" value="7">
+			<label>Row:</label><input id="row" type="number" value="5" min="1" max="64">
+			<label>Column</label><input id="clm" type="number" value="5" min="1" max="64">
+			<label>Width Ratio(%)</label><input id="rat" type="number" value="0" min="0" max="20">
 		</div>
 		
 		<button id="confirm" onclick="goToSheet()">Confirm The Box Settings</button>
 	</div>
 	<script>
-        function goToSheet() {let row = 0; column = 0, name = 'UnNamed';
-            row = document.getElementById("row").value;
-            column = document.getElementById("clm").value;
-			name = document.getElementById('newFileName').value;
+        function goToSheet() {
+            let row = document.getElementById("row").value;
+            let column = document.getElementById("clm").value;
+			let name = document.getElementById('newFileName').value;
+			let ratio = document.getElementById('rat').value;
 			eel.selectFolder(name);
 			let cf = {
-					row: parseInt(row),
-					col: parseInt(column),
+					row: row,
+					col: column,
+					rat: ratio,
 					rowValue: [],
 					colValue: []
 				}
