@@ -83,13 +83,16 @@ function Table() {
 			if (mode == 0) {
 				if (event.ctrlKey) {
 					cell.setAttribute('selected', 'true');
+					//cell.querySelectorAll('*').forEach(el => el.style.pointerEvents = 'auto');
 					s.push(n);
 				} else {
 					for (let n = 0; n < s.length; n++) {
 						table.querySelectorAll(".cell")[s[n]].removeAttribute('selected');
+						table.querySelectorAll(".cell")[s[n]].querySelectorAll('*').forEach(el => el.style.pointerEvents = 'none');
 					}
 					s = [];
 					cell.setAttribute('selected', 'true');
+					cell.querySelectorAll('*').forEach(el => el.style.pointerEvents = 'auto');
 					s.push(n);
 				}
 			}
@@ -111,15 +114,55 @@ function Table() {
 			}
 			cell.f = 0;
 		}
-		cell.addEventListener('dblclick', function(){
+		cell.addEventListener('contextmenu', function(){
 			if (!cell.querySelector('textarea')){
 				let input = document.createElement('textarea');
 				input.value = cell.innerHTML; cell.innerHTML = '';
 				input.style.width = cell.offsetWidth - 16 + "px";
 				input.style.height = cell.offsetHeight - 16 + "px";
 				cell.appendChild(input); input.focus();
+				input.addEventListener("keydown", function (event) {
+					const valueBefore = input.value.slice(0, input.selectionStart);
+					const valueAfter = input.value.slice(input.selectionEnd);
+					let insert = "", cursorPosOffset = 0;
+					if (event.ctrlKey) {
+						switch (event.key.toLowerCase()) {
+							case "i": // Image
+								event.preventDefault();
+								insert = '<img src="" style="height: calc(100% - 40px)" />';
+								cursorPosOffset = 10; // inside src=""
+								break;
+							case "v": // Video
+								event.preventDefault();
+								insert = '<video src="" controls style="height: calc(100% - 40px)"></video>';
+								cursorPosOffset = 13;
+								break;
+							case "m": // Music
+								event.preventDefault();
+								insert = '<audio src="" controls></audio>';
+								cursorPosOffset = 13;
+								break;
+							case "s": // Shortcut Link
+								event.preventDefault();
+								insert = '<a href="" target="_blank"></a>';
+								cursorPosOffset = 9;
+								break;
+							case "f": // Iframe
+								event.preventDefault();
+								insert = '<iframe src="" style="width:100%; height:calc(100% - 40px);" frameborder="0" allowfullscreen></iframe>';
+								cursorPosOffset = 13;
+								break;
+						}
+					}
+					if (insert) {
+						input.value = valueBefore + insert + valueAfter;
+						const cursorPos = valueBefore.length + cursorPosOffset;
+						input.setSelectionRange(cursorPos, cursorPos);
+					}
+				});
 				input.addEventListener('blur', function() {
 					cell.innerHTML = input.value;
+					cell.querySelectorAll('*').forEach(el => el.style.pointerEvents = 'none');
 					cell.flip[cell.f] = cell.innerHTML;
 					input.remove(); save();
 				});

@@ -1,0 +1,11 @@
+{
+    "txt": [
+        "<img src=\"Box.png\" style=\"height: calc(100% - 40px); pointer-events: none;\"> <div style=\"pointer-events: none;\">It is box image</div>"
+    ],
+    "line": [
+        [
+            0,
+            0
+        ]
+    ]
+}
