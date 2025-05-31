@@ -1,8 +1,8 @@
 let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, rc = 24;	//Variables
 let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main'), PageNo = document.getElementById('no');
-let rn = [], cn = [], cnode = [], i = 0, txt = [], line = [[]], rnv = [], cnv = [];
+let rn = [], cn = [], cnode = [], txt = [], line = [[]], rnv = [], cnv = [], color = [], colorLine = [];
 
-let r = 0, c = 0;
+let r = 0, c = 0, i = 0, j = 0;
 function getQueryParam(name) {	//when jump from Menu.html
 	const urlParams = new URLSearchParams(window.location.search); 
 	if (isNew){
@@ -11,7 +11,7 @@ function getQueryParam(name) {	//when jump from Menu.html
 		return 0;
 	}
 }
-let ratio = 0, simp = 0;
+let ratio = 0;
 function getLabel () {
 	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue; if ((r+c)==0) r = cf.row, c = cf.col;
 	
@@ -54,6 +54,8 @@ function getTableData () {
 	eel.load_from_json(`${l}.json`)().then(data => {
 		txt = data.txt;
 		line = data.line;
+		color = data.c;
+		colorLine = data.cl;
 		Table();
 	}).catch(error => {
 		console.error("Error loading data:", error);
@@ -97,7 +99,8 @@ function Table() {
 		cell.style.width = `${(wwidth - 8 - rc) / r}px`;
 
 		cell.addEventListener('click', function cellOnClick(event) {
-			navigator.clipboard.readText()
+			if (mode == 0) {
+				navigator.clipboard.readText()
 				.then(text => {
 				console.log("Clipboard content:", text);
 
@@ -120,8 +123,8 @@ function Table() {
 				.catch(err => {
 					console.error("Failed to read clipboard", err);
 				});
-
-			if (mode == 0) {
+				
+				
 				if (event.ctrlKey) {
 					cell.setAttribute('selected', 'true');
 					//cell.querySelectorAll('*').forEach(el => el.style.pointerEvents = 'auto');
@@ -156,7 +159,7 @@ function Table() {
 			cell.f = 0;
 		}
 		cell.addEventListener('contextmenu', function(){
-			if (!cell.querySelector('textarea')){
+			if (!cell.querySelector('textarea')){mode = 1;
 				let input = document.createElement('textarea');
 				input.value = cell.innerHTML; cell.innerHTML = '';
 				input.style.width = cell.offsetWidth - 16 + "px";
@@ -206,7 +209,7 @@ function Table() {
 						input.setSelectionRange(cursorPos, cursorPos);
 					}
 				});
-				input.addEventListener('blur', function() {
+				input.addEventListener('blur', function() {mode = 0;
 					cell.innerHTML = input.value;
 					cell.querySelectorAll('*').forEach(el => el.style.pointerEvents = 'none');
 					cell.flip[cell.f] = cell.innerHTML;
@@ -225,6 +228,7 @@ function Table() {
 				cell.flip[line[i][1]] = txt[i];	i++;
 			}
 		}
+		if (colorLine[j] == n && color.length-1 >= j) {cell.setAttribute('color', `${color[j]}`); j++}
 	}
 	cells = Container.querySelectorAll('.cell');
 }
@@ -363,6 +367,46 @@ document.addEventListener('keydown', async function OnKeydown(event) {
             document.getElementById("status").innerText = "Cleanup failed!";
         }
     }
+	if (event.shiftKey){
+		for (let n = 0; n < s.length; n++) {
+			switch (event.key.toLowerCase()) {
+				case "g":
+					cells[s[n]].setAttribute('color', '1');
+					break;
+				case "a":
+					cells[s[n]].setAttribute('color', '2');
+					break;
+				case "y":
+					cells[s[n]].setAttribute('color', '3');
+					break;
+				case "p":
+					cells[s[n]].setAttribute('color', '4');
+					break;
+				case "s":
+					cells[s[n]].setAttribute('color', '5');
+					break;
+				case "b":
+					cells[s[n]].setAttribute('color', '6');
+					break;
+				case "l":
+					cells[s[n]].setAttribute('color', '7');
+					break;
+				case "r":
+					cells[s[n]].setAttribute('color', '8');
+					break;
+				case "o":
+					cells[s[n]].setAttribute('color', '9');
+					break;
+				case "v":
+					cells[s[n]].setAttribute('color', '10');
+					break;
+				case 'q':
+					cells[s[n]].removeAttribute('color');
+					break;
+			}
+		}
+		save();
+	}
 });
 let TotalLayer = 0;	PageNo.innerHTML = l;
 eel.file_count()().then((count) => {TotalLayer = count})
@@ -377,7 +421,7 @@ document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
 });
 
 function save() {
-	let arr = [], pos = []; console.log('ok')
+	let arr = [], pos = [], col = [], cline = []; console.log('ok')
 		for (let p=0;p<cells.length;p++){			//save as file
 			for (let t=0;t<f;t++){
 				if (cells[p].flip[t] != ''){
@@ -385,10 +429,17 @@ function save() {
 					pos.push([p,t]);
 				}
 			}
+			if (cells[p].getAttribute('color')) {
+				col.push(cells[p].getAttribute('color'))
+				cline.push(p)
+			}
 		}
 		let data = {
+			head: '',
 			txt: arr,
-			line: pos
+			line: pos,
+			c: col,
+			cl: cline
 		}
 		console.log("Data to save:", data);
 		eel.save_to_json(data, `${l}.json`);
