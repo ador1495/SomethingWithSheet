@@ -62,15 +62,20 @@ function getTableData () {
 	});
 }
 function getTableDataOnly() {
-	cells.forEach(cell => {cell.innerHTML = '';});
+	cells.forEach(cell => {cell.innerHTML = '', cell.removeAttribute('color')});
 	eel.load_from_json(`${l}.json`)().then(data => {
 		txt = data.txt;
 		line = data.line;
+		color = data.c;
+		colorLine = data.cl;
 		for (let n = 0; n < txt.length; n++) {
 			if (line[n][1] == 0) {
 				cells[line[n][0]].innerHTML = txt[n];
 			}
 			cells[line[n][0]].flip[line[n][1]] = txt[i];
+		}
+		for (let n=0;n<color.length;n++){
+			cells[colorLine[n]].setAttribute('color', `${color[n]}`);
 		}
 	}).catch(error => {
 		console.error("Error loading data:", error);
@@ -351,12 +356,15 @@ document.addEventListener('keydown', async function OnKeydown(event) {
     }
 	if (event.key == "PageDown" && l < TotalLayer - 1) {	l++; getTableDataOnly();	PageNo.innerHTML = l	}
 	if (event.key == "PageUp" && l > 1) {					l--; getTableDataOnly();	PageNo.innerHTML = l	}
-	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++;
-		let data = {
+	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++; txt = []; line = [];
+		let New_data = {
+			head: "",
 			txt: [],
-			line: []
-		}
-		eel.save_to_json(data, `${l}.json`); getTableDataOnly();
+			line: [],
+			c: [],
+			cf: []
+		}; console.log(New_data)
+		eel.save_to_json(New_data, `${l}.json`); getTableDataOnly();
 	}
 	if (event.ctrlKey && event.key === 'x') {
         try {
@@ -371,41 +379,40 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 		for (let n = 0; n < s.length; n++) {
 			switch (event.key.toLowerCase()) {
 				case "g":
-					cells[s[n]].setAttribute('color', '1');
+					cells[s[n]].setAttribute('color', '1');save();
 					break;
 				case "a":
-					cells[s[n]].setAttribute('color', '2');
+					cells[s[n]].setAttribute('color', '2');save();
 					break;
 				case "y":
-					cells[s[n]].setAttribute('color', '3');
+					cells[s[n]].setAttribute('color', '3');save();
 					break;
 				case "p":
-					cells[s[n]].setAttribute('color', '4');
+					cells[s[n]].setAttribute('color', '4');save();
 					break;
 				case "s":
-					cells[s[n]].setAttribute('color', '5');
+					cells[s[n]].setAttribute('color', '5');save();
 					break;
 				case "b":
-					cells[s[n]].setAttribute('color', '6');
+					cells[s[n]].setAttribute('color', '6');save();
 					break;
 				case "l":
-					cells[s[n]].setAttribute('color', '7');
+					cells[s[n]].setAttribute('color', '7');save();
 					break;
 				case "r":
-					cells[s[n]].setAttribute('color', '8');
+					cells[s[n]].setAttribute('color', '8');save();
 					break;
 				case "o":
-					cells[s[n]].setAttribute('color', '9');
+					cells[s[n]].setAttribute('color', '9');save();
 					break;
 				case "v":
-					cells[s[n]].setAttribute('color', '10');
+					cells[s[n]].setAttribute('color', '10');save();
 					break;
 				case 'q':
-					cells[s[n]].removeAttribute('color');
+					cells[s[n]].removeAttribute('color');save();
 					break;
 			}
 		}
-		save();
 	}
 });
 let TotalLayer = 0;	PageNo.innerHTML = l;
