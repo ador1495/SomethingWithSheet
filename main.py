@@ -103,7 +103,6 @@ def select_zip_file():
     return file_path
 
 @eel.expose
-
 def extract_to_data(zip_path):
     if not zip_path:
         return "Error: No ZIP file selected"
@@ -111,10 +110,23 @@ def extract_to_data(zip_path):
     if not os.path.exists(DATA_DIR):
         os.makedirs(DATA_DIR)
 
+    zip_name = os.path.splitext(os.path.basename(zip_path))[0]  # Get ZIP filename without extension
+
     try:
         with zipfile.ZipFile(zip_path, 'r') as zipf:
             zipf.extractall(DATA_DIR)
-        return f"Extracted successfully to {DATA_DIR}"
+
+        # Get the first folder inside the extracted directory
+        extracted_items = os.listdir(DATA_DIR)
+        first_folder = next((item for item in extracted_items if os.path.isdir(os.path.join(DATA_DIR, item))), None)
+
+        if first_folder:
+            new_folder_path = os.path.join(DATA_DIR, zip_name)
+            os.rename(os.path.join(DATA_DIR, first_folder), new_folder_path)
+            return f"Extracted successfully. Folder renamed to {zip_name}"
+        else:
+            return "Extraction successful, but no folder found to rename."
+    
     except Exception as e:
         print(f"Extraction error: {e}")  # Log issue in console
         return f"Error: {str(e)}"
@@ -151,7 +163,10 @@ def save_and_cleanup_zip():
 
 
 
-
+@eel.expose
+def get_current_name():
+    names = get_file_list("Data")
+    return names[0]
 
 
 
@@ -159,8 +174,8 @@ def save_and_cleanup_zip():
 
 pre_data = get_file_list("Data")
 if len(pre_data) > 0:
-    global Folder;
-    Folder = pre_data[0];
+    global Folder
+    Folder = pre_data[0]
     global FileName
     FileName = '1.json'
     eel.start("sheet.html", mode="default")

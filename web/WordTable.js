@@ -2,7 +2,7 @@ let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, rc
 let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main'), PageNo = document.getElementById('no');
 let rn = [], cn = [], cnode = [], txt = [], line = [[]], rnv = [], cnv = [], color = [], colorLine = [];
 
-let r = 0, c = 0, i = 0, j = 0;
+let r = 0, c = 0, i = 0, j = 0, head = "undefined", inputPN = document.getElementById('projectName'), inputLN = document.getElementById('layerName');
 function getQueryParam(name) {	//when jump from Menu.html
 	const urlParams = new URLSearchParams(window.location.search); 
 	if (isNew){
@@ -16,7 +16,7 @@ function getLabel () {
 	eel.load_from_json('config.json')().then(cf => { rnv = cf.rowValue, cnv = cf.colValue; if ((r+c)==0) r = cf.row, c = cf.col;
 	
 	let wheight = document.documentElement.clientHeight-32, wwidth = document.documentElement.clientWidth-32, simp = 0;
-	ratio = cf.rat;console.log(ratio)
+	ratio = cf.rat;
 	if (ratio>0) {let z = ratio * (r/c) * (155.75/148);
 		if (wwidth/wheight> z){
 			wwidth = (wheight) * z;
@@ -50,17 +50,30 @@ function getLabel () {
 		console.error("Error loading data:", error);
 	});
 }
-function getTableData () {
-	eel.load_from_json(`${l}.json`)().then(data => {
+async function getTableData() {
+	try {
+		const data = await eel.load_from_json(`${l}.json`)();
+		head = data.head;
+		inputLN.innerHTML = head;
+		inputLN.addEventListener('blur', function(){const text = inputLN.innerHTML.trim();
+			if (text == '<br>'){inputLN.innerHTML = head} else if (text != head) {head = inputLN.innerHTML; save()}
+		})
 		txt = data.txt;
 		line = data.line;
 		color = data.c;
 		colorLine = data.cl;
 		Table();
-	}).catch(error => {
+
+		let name = await eel.get_current_name()();
+		inputPN.innerHTML = name;
+		inputPN.addEventListener('blur', function(){const text = inputPN.innerHTML.trim();
+			if (text == '<br>'){inputPN.innerHTML = name} else if (text != name) {eel.rename_file(`Data/${name}`, `Data/${inputPN.innerHTML}`); name = inputPN.innerHTML;}
+		})
+	} catch (error) {
 		console.error("Error loading data:", error);
-	});
+	}
 }
+
 function getTableDataOnly() {
 	cells.forEach(cell => {cell.innerHTML = '', cell.removeAttribute('color')});
 	eel.load_from_json(`${l}.json`)().then(data => {
@@ -414,9 +427,22 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 			}
 		}
 	}
+	if (event.key == '/' && !event.repeat) {
+		const plate = document.querySelector('.plate');
+		if (plate.style.display == 'none') {plate.style.display = 'block'} else {plate.style.display = 'none'}
+}
 });
-let TotalLayer = 0;	PageNo.innerHTML = l;
-eel.file_count()().then((count) => {TotalLayer = count})
+let TotalLayer = 0;	PageNo.innerHTML = l, layerList = [];
+eel.file_count()().then((count) => {TotalLayer = count; getLayerData();})
+function getLayerData() {
+	for (let m = 1; m < TotalLayer; m++){
+		eel.load_from_json(`${m}.json`)().then(data => {
+			document.getElementById('layerList').innerHTML += `<div style="font-size: 20px;">${m} | ${data.head}</div>`
+		}).catch(error => {
+			console.error("Error loading data:", error);
+		});
+	}
+}
 document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
 	if (event.key == 't'){
 		for (let n = 0; n < s.length; n++) {
@@ -442,7 +468,7 @@ function save() {
 			}
 		}
 		let data = {
-			head: '',
+			head: head,
 			txt: arr,
 			line: pos,
 			c: col,

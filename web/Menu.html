@@ -127,7 +127,9 @@
 		}
 		#smthNew {
 			font-size: 64px;
-			margin: 40px;
+			background-color: #f1f1f1;
+			padding: 40px;
+			color: black;
 		}
     </style>
 </head>
@@ -145,7 +147,7 @@
 
     <h2>Choose Box</h2>
     <div class="template">
-		<div class="box"><div id="smthNew">+</div></div>
+		<div class="box"><button id="smthNew">+</button></div>
 	</div>
 	<div id="create">
 		<label>Box Name:</label><input id="newFileName">
@@ -185,6 +187,9 @@
             window.location.href = "sheet.html";
         }
 		document.getElementById("create-btn").addEventListener("click", () => {
+			document.getElementById("create").style.display = "block";
+		});
+		document.getElementById("smthNew").addEventListener("click", () => {
 			document.getElementById("create").style.display = "block";
 		});
 		document.getElementById("open-btn").addEventListener("click", async () => {
@@ -229,6 +234,12 @@
 			eel.delete(`Saved Data/${fileName}`);
 		
 			box.remove(); // Remove from UI after deletion
+		}
+		if (event.target.classList.contains("boximg")) {
+			let box = event.target.closest('.box'); // Find parent div
+			let fileName = box.querySelector('.boxname').textContent;
+			eel.extract_to_data(`Saved Data/${fileName}`);
+			window.location.href = "sheet.html";
 		}
 	});
 	document.querySelector('.template').addEventListener("blur", function(event) {
