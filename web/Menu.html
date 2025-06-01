@@ -14,67 +14,58 @@
             max-width: 95vw;
         }
         h1, h2 {
-            font-size: 3vw; /* More balanced text size */
+            font-size: 3vh; /* More balanced text size */
             color: #333;
-			margin-bottom: 2vh;
+			margin-bottom: 0vh;
         }
         input {
             display: block;
-            margin: 1vw 0;
+            margin: 1vh 0;
             padding: 0.8vw;
             width: 75vw; /* Slightly smaller input box */
-            font-size: 1.8vw;
+            font-size: 3vh;
         }
         button {
-            padding: 1vw 2vw;
-            margin: 0.5vw;
-            font-size: 1.6vw;
+            padding: 1vh 2vw;
+            margin: 0.5vh;
+            font-size: 2vh;
             border: none;
             background-color: #007BFF;
             color: white;
             cursor: pointer;
-            border-radius: 0.5vw;
+            border-radius: 0.5vh;
         }
         button:hover {
             background-color: #0056b3;
         }
-        .template {
-            background: #fff;
-            padding: 1.5vw;
-            border-radius: 0.8vw;
-            box-shadow: 0 0 0.8vw rgba(0, 0, 0, 0.1);
-        }
         p {
-            margin: 0.8vw 0;
+            margin: 0.8vh 0;
             font-size: 1.5vw;
         }
 
         /* Fine-tuned media query for smaller screens */
-        @media (max-width: 600px) {
-            body {
-                padding: 1.5vw;
-                margin: 1.5vw;
-            }
-            h1, h2 {
-                font-size: 4vw;
-            }
+        @media (max-width: 784px) {
+            <!-- body { -->
+                <!-- padding: 1.5vh; -->
+                <!-- margin: 1.5vh; -->
+            <!-- } -->
+            <!-- h1, h2 { -->
+                <!-- font-size: 1vh; -->
+            <!-- } -->
             button, input {
-                font-size: 2.5vw;
-                padding: 1.5vw;
+                font-size: 1vh;
+                padding: 1vh;
             }
         }
-		.template {
-			position: relative; /* Makes child positioning stable */
-			overflow: hidden; /* Prevent extra spacing issues */
-			width: 85vw;
-		}
 
 		.box-image {
-			width: 24vw; 
-			position: absolute; /* Ensures it's inside the box */
-			right: 0vw; /* Adjust as needed */
-			top: 60%; /* Centers vertically */
-			transform: translateY(-50%); /* Fixes alignment */
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			z-index: 1;
+			opacity: 20%;
+			pointer-events: none;
 		}
 		#create {
 			position: fixed;
@@ -89,6 +80,55 @@
 			box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3); /* Adds a subtle shadow */
 			display: none;
 		}
+		.box {
+			height: 140px;
+			width: 120px;
+			margin: 16px;
+			background-color: #f3f3f3;
+		}
+		.template {
+            background: #fff;
+            padding: 1.5vw;
+            border-radius: 0.8vw;
+            box-shadow: 0 0 0.8vw rgba(0, 0, 0, 0.1);
+			width: 90vw;
+			height: calc(80vh - 145px);
+			display: flex;
+			flex-wrap: wrap;
+			flex-direction: row;
+			overflow-y: scroll;
+        }
+		.boxname {
+			Width: 120px;
+			text-align: center;
+		}
+		.boximg {
+			width: 120px;
+			height: 120px;
+			display:flex;
+			justify-content: flex-end;
+			background-image: url("Box.png");
+			background-size: cover;
+		}
+		.delete {
+			width: 16px;
+			height: 16px;
+			font-size: 16px;
+			margin:0px;
+			padding:0px;
+			background-color: red;
+		}
+		.boximg .delete {
+			display: none;
+		}
+
+		.boximg:hover .delete {
+			display: block;
+		}
+		#smthNew {
+			font-size: 64px;
+			margin: 40px;
+		}
     </style>
 </head>
 <body>
@@ -101,18 +141,11 @@
     <button id="open-btn">Open The Box</button>
     <button>Edit Box Size</button>
     <button onclick="window.location.href = 'KeyMap.html'">Key Mapping</button>
+	<img src="Box.png" alt="Opened Transparent Box" class="box-image">
 
-    <h2>Feature</h2>
+    <h2>Choose Box</h2>
     <div class="template">
-		<p><b>Sheet</b></p>
-		<p>1. Cell can flip like Flash Card and Cell can Load image, html element and Shoutcut/URL</p>
-		<p>2. Limited Row and Column with custom label to make Routin, Report and Chart Easier</p>
-		<p>3. Move to sheet with PgUp/PgDn and Mark cell with color and Move to marked Cell</p>
-		<p><b>HTML Page Editor</b></p>
-		<p>1. Create Cell and set its innerHTML and css</p>
-		<p>2. Shoutcut Key for setting lines of code instantly</p>
-
-		<img src="Box.png" alt="Opened Transparent Box" class="box-image">
+		<div class="box"><div id="smthNew">+</div></div>
 	</div>
 	<div id="create">
 		<label>Box Name:</label><input id="newFileName">
@@ -164,11 +197,56 @@
             document.getElementById("status").innerText = "Extraction failed!";
         }
     }
-});
+	});
 
 		
 		
+	async function fetchFiles() {
+		try {
+			let files = await eel.get_file_list('Saved Data')();
+			for (let f=0;f<files.length;f++){
+				let File = document.createElement('div');
+				File.className = 'box';
+				File.innerHTML = `
+			<div class="boximg">
+				<button class="delete">X</button>
+			</div>
+			<div class="boxname" contenteditable="true"  data-oldname="${files[f]}">${files[f]}</div>
+				`
+				document.querySelector('.template').appendChild(File);
+			}
+		} catch (error) {
+			console.error("Error fetching file list:", error);
+		}
+	}
+	fetchFiles();
+	document.querySelector('.template').addEventListener("click", function(event) {
+		if (event.target.classList.contains("delete")) {
+			let box = event.target.closest('.box'); // Find parent div
+			let fileName = box.querySelector('.boxname').textContent; // Get name
 		
+			console.log('Deleting:', fileName);
+			eel.delete(`Saved Data/${fileName}`);
+		
+			box.remove(); // Remove from UI after deletion
+		}
+	});
+	document.querySelector('.template').addEventListener("blur", function(event) {
+    if (event.target.classList.contains("boxname")) {
+        let box = event.target.closest('.box');
+        let oldName = event.target.getAttribute('data-oldname'); // Store old name
+        let newName = event.target.textContent.trim(); // Get updated name
+		console.log(oldName, newName)
+
+        if (oldName && newName && oldName !== newName) {
+            console.log(`Renaming: ${oldName} → ${newName}`);
+            eel.rename_file(`Saved Data/${oldName}`, `Saved Data/${newName}`);
+            event.target.setAttribute('data-oldname', newName); // Update reference
+        }
+    }
+}, true);
+
+
 		
 		
 		

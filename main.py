@@ -46,8 +46,28 @@ def selectFolder(Folder):
 def folder_exist(path):
     return os.path.exists(path) and os.path.isdir(path)
 
+@eel.expose
 def get_file_list(path):
     return os.listdir(path) if os.path.exists(path) else []
+
+@eel.expose
+def delete(path):
+    if os.path.exists(path):
+        if os.path.isdir(path):  # Check if it's a directory
+            shutil.rmtree(path)
+        else:  # If it's a file, delete it
+            os.remove(path)  
+        print(f"Deleted: {path}")
+    else:
+        print(f"Path does not exist: {path}")
+
+@eel.expose
+def rename_file(old_path, new_path):
+    if os.path.exists(old_path) and not os.path.exists(new_path):  # Prevent overwrite
+        os.rename(old_path, new_path)
+        print(f"Renamed: {old_path} → {new_path}")
+    else:
+        print("Rename failed: File may not exist or new name already in use.")
 
 @eel.expose
 def file_count():
