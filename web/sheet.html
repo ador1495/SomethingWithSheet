@@ -160,18 +160,14 @@
 			left: 10vw;
         }
 		.Pname{
-			font-size: 32px;
-			width: 80vw;
-			text-align: center;
-		}
-		.Lname {
-			font-size: 26px;
-			width: 80vw;
-			text-align: center;
-		}
-		#projectName, #layerName{
-			display: block;
+			font-size: 4vw;
 			width: 75vw;
+			text-align: center;
+		}
+		table{
+			font-size: 2vw;
+			width: 70vw;
+			text-align: center;
 		}
 	</style>
 </head>
@@ -185,9 +181,18 @@
 	</div>
 	<div class="plate">
 		<div class="Pname"><label id="projectName" contenteditable="true"></label></div>
-		<div class="Lname"><label id="layerName" contenteditable="true"></label></div>
-		<div>Sheet No. | Page Name</div>
 		<div id="layerList"></div>
+		<table>
+			<thead>
+				<tr>
+					<th>Page No</th>
+					<th>Page Name</th>
+				</tr>
+			</thead>
+				
+			<tbody>
+			</tbody>
+		</table>
 	</div>
 	<script src="WordTable.js">
 </script>

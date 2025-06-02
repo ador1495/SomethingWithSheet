@@ -1,8 +1,10 @@
-let l = 1, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, rc = 24;	//Variables
+let l = 0, s = [], sc = [], scv = [], ds = null, mode = 0, cr = false, f = 2, rc = 24;	//Variables
 let cells = document.querySelectorAll('cell'), inputs = document.querySelectorAll('input'), Container = document.getElementById('main'), PageNo = document.getElementById('no');
 let rn = [], cn = [], cnode = [], txt = [], line = [[]], rnv = [], cnv = [], color = [], colorLine = [];
 
-let r = 0, c = 0, i = 0, j = 0, head = "undefined", inputPN = document.getElementById('projectName'), inputLN = document.getElementById('layerName');
+let r = 0, c = 0, i = 0, j = 0, head = "undefined", inputPN = document.getElementById('projectName'), name='';
+let TotalLayer = 0;	PageNo.innerHTML = 0, layerList = [];
+
 function getQueryParam(name) {	//when jump from Menu.html
 	const urlParams = new URLSearchParams(window.location.search); 
 	if (isNew){
@@ -52,31 +54,37 @@ function getLabel () {
 }
 async function getTableData() {
 	try {
-		const data = await eel.load_from_json(`${l}.json`)();
-		head = data.head;
-		inputLN.innerHTML = head;
-		inputLN.addEventListener('blur', function(){const text = inputLN.innerHTML.trim();
-			if (text == '<br>'){inputLN.innerHTML = head} else if (text != head) {head = inputLN.innerHTML; save()}
+		name = await eel.get_current_name()();
+		inputPN.innerHTML = name; countLayer();
+		inputPN.addEventListener('blur', function(){const text = inputPN.innerHTML.trim();
+			if (text == '<br>'){inputPN.innerHTML = name} else if (text != name) {eel.rename_file(`Data/${name}`, `Data/${inputPN.innerHTML}`); name = inputPN.innerHTML;}
 		})
+		const result = await countLayer();
+		console.log("countLayer output:", result);
+		let [layerList, TotalLayer] = [result[0], result[1]]
+		PageNo.innerHTML = layerList[l].split('.')[0];
+		
+		
+		const data = await eel.load_from_json(layerList[l])();
+		head = data.head;
 		txt = data.txt;
 		line = data.line;
 		color = data.c;
 		colorLine = data.cl;
 		Table();
-
-		let name = await eel.get_current_name()();
-		inputPN.innerHTML = name;
-		inputPN.addEventListener('blur', function(){const text = inputPN.innerHTML.trim();
-			if (text == '<br>'){inputPN.innerHTML = name} else if (text != name) {eel.rename_file(`Data/${name}`, `Data/${inputPN.innerHTML}`); name = inputPN.innerHTML;}
-		})
 	} catch (error) {
 		console.error("Error loading data:", error);
 	}
 }
 
-function getTableDataOnly() {
+async function getTableDataOnly() {
+	const result = await countLayer();
+	//console.log("countLayer output:", result, result[0][l], l);
+	let [layerList, TotalLayer] = [result[0], result[1]];
+	PageNo.innerHTML = layerList[l].split('.')[0];
+
 	cells.forEach(cell => {cell.innerHTML = '', cell.removeAttribute('color')});
-	eel.load_from_json(`${l}.json`)().then(data => {
+	eel.load_from_json(layerList[l])().then(data => {
 		txt = data.txt;
 		line = data.line;
 		color = data.c;
@@ -367,9 +375,9 @@ document.addEventListener('keydown', async function OnKeydown(event) {
             cells[s[n]].innerHTML = cells[s[n]].flip[cells[s[n]].f];
         }
     }
-	if (event.key == "PageDown" && l < TotalLayer - 1) {	l++; getTableDataOnly();	PageNo.innerHTML = l	}
-	if (event.key == "PageUp" && l > 1) {					l--; getTableDataOnly();	PageNo.innerHTML = l	}
-	if (event.key == "PageDown" && event.shiftKey && !event.repeat) {		l++;		PageNo.innerHTML = l;	TotalLayer++; txt = []; line = [];
+	if (event.key == "PageDown" && l <= TotalLayer-2) {	l++; getTableDataOnly()}
+	if (event.key == "PageUp" && l > 0) {				l--; getTableDataOnly()}
+	if (event.key == "PageDown" && event.shiftKey && !event.repeat && l == TotalLayer-1) {		l++; txt = []; line = [];
 		let New_data = {
 			head: "",
 			txt: [],
@@ -377,7 +385,7 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 			c: [],
 			cf: []
 		}; console.log(New_data)
-		eel.save_to_json(New_data, `${l}.json`); getTableDataOnly();
+		eel.save_to_json(New_data, `${l+1}..json`); getTableDataOnly();
 	}
 	if (event.ctrlKey && event.key === 'x') {
         try {
@@ -432,17 +440,48 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 		if (plate.style.display == 'none') {plate.style.display = 'block'} else {plate.style.display = 'none'}
 }
 });
-let TotalLayer = 0;	PageNo.innerHTML = l, layerList = [];
-eel.file_count()().then((count) => {TotalLayer = count; getLayerData();})
-function getLayerData() {
-	for (let m = 1; m < TotalLayer; m++){
-		eel.load_from_json(`${m}.json`)().then(data => {
-			document.getElementById('layerList').innerHTML += `<div style="font-size: 20px;">${m} | ${data.head}</div>`
-		}).catch(error => {
-			console.error("Error loading data:", error);
-		});
+async function countLayer() {
+    try {
+        const file = await eel.get_file_list(`Data/${name}`)();
+        layerList = file;
+        layerList.splice(layerList.indexOf('config.json'), 1);
+        
+        // Sort alphabetically or numerically
+        layerList.sort((a, b) => a.localeCompare(b, undefined, { numeric: true })); // Change numeric to false for strict A-Z sorting
+
+        TotalLayer = layerList.length;
+        console.log(layerList, TotalLayer);
+        getLayerData(layerList, TotalLayer);
+        return [layerList, TotalLayer];
+    } catch (error) {
+        console.error("Error fetching file list:", error);
+        return [[], 0]; // Fallback values
+    }
+}
+
+
+function getLayerData(layerList, TotalLayer) {console.log(layerList, TotalLayer);
+	document.querySelector('tbody').innerHTML = '';
+	for (let m = 0; m < TotalLayer; m++){
+		document.querySelector('tbody').innerHTML += `<tr><td class="tno"><button>${layerList[m].split('.')[0]}</button></td><td class="tname" contenteditable="true" onblur="layerNameEdit(${m})">${layerList[m].split('.')[1]}</td><td class="tdel"><button onclick="deleteLayer(${m})">Delete</button></td><td><button onclick="jumpLayer(${m})">Open</button></td></tr>`
 	}
 }
+function jumpLayer(m){l=m; getTableDataOnly()}
+function deleteLayer(m){
+	eel.delete(`Data/${name}/${layerList[m]}`);
+	for (let k = m; k < TotalLayer - 1; k++) {
+        const oldName = `${layerList[k+1].split('.')[0]}.${layerList[k].split('.')[1]}.json`;
+        const newName = `${layerList[k].split('.')[0]}.${layerList[k].split('.')[1]}.json`;
+        eel.rename_file(`Data/${name}/${oldName}`, `Data/${name}/${layerList[k]}`);
+    }
+	countLayer();
+}
+function layerNameEdit(m){	let oldName = layerList[m], newName = document.querySelectorAll('.tname')[m].textContent.trim();
+	eel.rename_file(`Data/${name}/${oldName}`, `Data/${name}/${layerList[m].split('.')[0]}.${newName}.json`);
+}
+document.addEventListener('blur', function(){const text = inputLN.innerHTML.trim();
+			if (text == '<br>'){inputLN.innerHTML = head} else if (text != head) {head = inputLN.innerHTML; save()}
+		})
 document.addEventListener('keyup', function OnKeyUp(event) {cr = false;
 	if (event.key == 't'){
 		for (let n = 0; n < s.length; n++) {
