@@ -63,7 +63,7 @@ def delete(path):
 
 @eel.expose
 def rename_file(old_path, new_path):
-    if os.path.exists(old_path) and not os.path.exists(new_path):  # Prevent overwrite
+    if os.path.exists(old_path) and not os.path.exists(new_path):
         os.rename(old_path, new_path)
         print(f"Renamed: {old_path} → {new_path}")
     else:
@@ -76,8 +76,40 @@ def file_count():
     file_path = f"Data/{Folder}"
     return len(get_file_list(file_path))
 
+@eel.expose
+def swap_file(path1, path2):
+    print(f"Received paths:\n - {path1}\n - {path2}")
 
+    if not os.path.exists(path1) or not os.path.exists(path2):
+        return "One or both files do not exist."
 
+    dir1, file1 = os.path.split(path1)
+    dir2, file2 = os.path.split(path2)
+
+    # Split only on first dot to get base (number) and the rest
+    if '.' not in file1 or '.' not in file2:
+        return "Invalid file format."
+
+    base1, rest1 = file1.split('.', 1)
+    base2, rest2 = file2.split('.', 1)
+
+    # Temporary renaming to prevent collision
+    temp1 = os.path.join(dir1, f"_temp_swap_{file1}")
+    os.rename(path1, temp1)
+
+    try:
+        # Rename second file to first base
+        new1 = os.path.join(dir2, f"{base1}.{rest2}")
+        os.rename(path2, new1)
+
+        # Rename temp file to second base
+        new2 = os.path.join(dir1, f"{base2}.{rest1}")
+        os.rename(temp1, new2)
+
+        return f"Swapped base names: {file1} ⇄ {file2}"
+    except Exception as e:
+        os.rename(temp1, path1)  # Revert if something fails
+        return f"Swap failed: {str(e)}"
 
 
 

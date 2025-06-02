@@ -383,7 +383,7 @@ document.addEventListener('keydown', async function OnKeydown(event) {
 			txt: [],
 			line: [],
 			c: [],
-			cf: []
+			cl: []
 		}; console.log(New_data)
 		eel.save_to_json(New_data, `${l+1}..json`); getTableDataOnly();
 	}
@@ -463,9 +463,30 @@ async function countLayer() {
 function getLayerData(layerList, TotalLayer) {console.log(layerList, TotalLayer);
 	document.querySelector('tbody').innerHTML = '';
 	for (let m = 0; m < TotalLayer; m++){
-		document.querySelector('tbody').innerHTML += `<tr><td class="tno"><button>${layerList[m].split('.')[0]}</button></td><td class="tname" contenteditable="true" onblur="layerNameEdit(${m})">${layerList[m].split('.')[1]}</td><td class="tdel"><button onclick="deleteLayer(${m})">Delete</button></td><td><button onclick="jumpLayer(${m})">Open</button></td></tr>`
+		if (m == l) {
+			document.querySelector('tbody').innerHTML += `<tr class="selectedRow"><td class="tno"><button onclick="replace(${m})">${layerList[m].split('.')[0]}</button></td><td class="tname" contenteditable="true" onblur="layerNameEdit(${m})">${layerList[m].split('.')[1]}</td><td class="tdel"><button onclick="deleteLayer(${m})">Delete</button></td><td><button onclick="jumpLayer(${m})">Open</button></td></tr>`
+		} else {
+			document.querySelector('tbody').innerHTML += `<tr><td class="tno"><button onclick="replace(${m})">${layerList[m].split('.')[0]}</button></td><td class="tname" contenteditable="true" onblur="layerNameEdit(${m})">${layerList[m].split('.')[1]}</td><td class="tdel"><button onclick="deleteLayer(${m})">Delete</button></td><td><button onclick="jumpLayer(${m})">Open</button></td></tr>`
+		}
 	}
 }
+async function replace(m) {
+	let rep = document.getElementById('rep');
+	if (m != l) {
+		const file1 = `Data/${name}/${layerList[l]}`;
+		const file2 = `Data/${name}/${layerList[m]}`;
+
+		try {
+			const result = await eel.swap_file(file1, file2)();
+			console.log(result);
+			countLayer();
+		} catch (err) {
+			console.error("Swap failed in JS:", err);
+		}
+	}
+}
+
+
 function jumpLayer(m){l=m; getTableDataOnly()}
 function deleteLayer(m){
 	eel.delete(`Data/${name}/${layerList[m]}`);
